@@ -3,7 +3,6 @@
 from controller import Robot, Motor, Camera, Accelerometer, GPS, Gyro, LightSensor, Receiver, RangeFinder, Lidar
 from controller import Supervisor
 import numpy as np
-from PIL import Image
 
 
 
@@ -145,10 +144,8 @@ def main():
         print(camera2.getHeight())
 
         image = camera2.getImageArray()
-        red = []
-        green = []
-        blue = []
-        gray = []
+        view_info = []
+        object_data = []
         if image:
             # for x in range(0,camera2.getWidth()):
             #     for y in range(0,camera2.getHeight()):
@@ -157,18 +154,9 @@ def main():
             #         blue.append(image[x][y][2])
             #         gray.append((image[x][y][0] + image[x][y][1] + image[x][y][2]) / 3)
             data = np.array(image, dtype = np.uint8) 
-            object_data = object_info(data, camera2.getHeight() * camera2.getWidth())
-            print("object date\n",object_data)
-            for i in range(len(object_data)):
-                x,y = object_data[i][0]
-                print(x,y)
-                R  = image[x][y][0]
-                G = image[x][y][1]
-                B  = image[x][y][2]
-                color = getColorName(R,G,B)
-                print(R,G,B)
-                print(color)
-                print("area",object_data[i][1])
+            object_data = object_info(data, camera2.getHeight(), camera2.getWidth())
+            view_info = zombie_berry_info(object_data, image, camera2.getWidth(), camera2.getHeight(), )
+            print("view info", view_info)
 
 
         
