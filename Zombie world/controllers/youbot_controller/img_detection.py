@@ -24,8 +24,9 @@ def object_info(img, size_image):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    print("Number of contours = {}".format(str(len(contours))))
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    # print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
         if M['m00'] != 0:
