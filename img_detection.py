@@ -110,7 +110,7 @@ def zombie_berry_info(object_data, image, img_width, img_height):
                     c += 1
         color = getColorName(R/c,G/c,B/c)
         color = color.lower()
-        print(R/c,G/c,B/c,color)
+        # print(R/c,G/c,B/c,color)
         if (color.find("red") != -1 or color.find("rose") != -1 or color.find("wine") != -1):
             view = helper_contour(view, object_data, i, "red berry")
         elif (color.find("yellow") != -1):
