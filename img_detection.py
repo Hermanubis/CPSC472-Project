@@ -55,10 +55,6 @@ def helper_contour(view, object_data, num, type):
         view[type].append([object_data[num][0],object_data[num][1]])
     else:
         for i in view[type]:
-            print("type", i)
-            print("type", i[0][0])
-            print("type", object_data[num][0][0])
-            print("type", object_data[num][0][1])
             if ((i[0][0] - object_data[num][0][0]) < 5 and (i[0][1] - object_data[num][0][1]) < 5):
                 i[0][0] = 0.5 * (i[0][0] + object_data[num][0][0])
                 i[1] = i[1] + object_data[num][1]
