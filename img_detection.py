@@ -41,7 +41,7 @@ def object_info(img, img_width, img_height):
                 # cv2.circle(img, (cx, cy), 7, (0, 0, 255), -1)
                 # cv2.putText(img, "center", (cx - 20, cy - 20),
                 #        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-                object_data.append([(cy,cx), area])
+                object_data.append([[cy,cx], area])
     # cv2.imwrite("./test1.jpg", img)
 
     # cv2.imshow('Image', img)
@@ -57,6 +57,7 @@ def helper_contour(view, object_data, num, type):
         for i in view[type]:
             if ((i[0][0] - object_data[num][0][0]) < 5 and (i[0][1] - object_data[num][0][1]) < 5):
                 i[0][0] = 0.5 * (i[0][0] + object_data[num][0][0])
+                i[0][1] = 0.5 * (i[0][1] + object_data[num][0][1])
                 i[1] = i[1] + object_data[num][1]
                 add = True
         if add == False: 
