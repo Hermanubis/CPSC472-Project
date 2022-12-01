@@ -52,8 +52,6 @@ def object_info(img, img_width, img_height):
 
 def helper_contour(view, object_data, type):
     add = True
-    removed_index = []
-    print(view[type], object_data)
     if (view[type] == []):
         view[type].append(object_data)
     else:
@@ -93,10 +91,6 @@ def helper_contour_add_dir(image, view, img_width, img_height):
                 object.append("right")
             else:
                 object.append("center")
-        
-    
-
-
     return view
 
 # find the class based on various color name
@@ -119,10 +113,11 @@ def zombie_berry_info(object_data, image, img_width, img_height):
     view = {"red": [], "yellow": [], "orange": [], "pink": [],
             "green": [], "blue": [], "aqua": [], "purple": [], 
             "possible berries":[], "possible zombies":[],  "wall": []}
-    color_flag = False
     for i in range(len(object_data)):
+        color_flag = False
         x,y = object_data[i][0]
         for cx in range(x - 3, x + 3):
+            if color_flag: break
             for cy in range(y - 3, y + 3):
                 if (0 < cx < img_width and 0 < cy < img_height):
                     R  += image[cx][cy][0]
@@ -134,13 +129,13 @@ def zombie_berry_info(object_data, image, img_width, img_height):
                     color = find_color(color)
                     if (color != " "):
                         color_flag = True
-                        
+                        print(color)
+                        break      
         if color_flag == False:
             color = getColorName(R/c,G/c,B/c)
             color = color.lower()
             color = find_color(color)
         
-        print(object_data,color)
         if (color != " "):
             view = helper_contour(view, object_data[i], color)
         else:
