@@ -13,6 +13,7 @@ csv = pd.read_csv('./colors.csv', names=index, header=None)
 # return the name of the color based on the RGB value
 def getColorName(R,G,B):
     minimum = 1000
+    color_name = " "
     for i in range(len(csv)):
         d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
         if(d<minimum):
@@ -52,8 +53,9 @@ def object_info(img, img_width, img_height):
 def helper_contour(view, object_data, type):
     add = True
     removed_index = []
+    print(view[type], object_data)
     if (view[type] == []):
-        view[type].append([object_data[0],object_data[1]])
+        view[type].append(object_data)
     else:
         for i in view[type]:
             if ((i[0][0] - object_data[0][0]) < 5 and (i[0][1] - object_data[0][1]) < 5):
@@ -82,7 +84,7 @@ def helper_contour(view, object_data, type):
         # else:
         #     view[type].append([object_data[num][0],object_data[num][1]])
     return view 
-def helper_contour_add_dir(image, view, img_width):
+def helper_contour_add_dir(image, view, img_width, img_height):
     for key, value in view.items():
         for object in value:
             if object[0][0] < 0.25 * img_width:
@@ -91,130 +93,59 @@ def helper_contour_add_dir(image, view, img_width):
                 object.append("right")
             else:
                 object.append("center")
-        # if key == "possible berries": 
-        #     if (len(value) > 6):
-        #         for index in range(len(value)):
-        #             x = value[index][0][0]
-        #             y = value[index][0][0]
-        #             R  += image[x][y][0]
-        #             G  += image[x][y][1]
-        #             B  += image[x][y][2]
-        #             color = getColorName(R,G,B)
-        #             add(color, view, value[index])
+        
     
 
 
     return view
+
+# find the class based on various color name
+def find_color(given):
+    # color group info
+    # first value of the each element is the class name
+    color_info = [["red", "rose", "wine"], ["yellow"], ["orange"], ["pink"], ["green"], ["blue"], ["aqua"], ["purple"]]
+    for color_group in color_info:
+            for color in color_group:
+                if (given.find(color) != -1):
+                    return color_group[0]
+    return " "
 
 def zombie_berry_info(object_data, image, img_width, img_height):
     R = 0
     G = 0
     B = 0
     c = 0
-    view = {"red berry": [], "yellow berry": [], "orange berry": [], "pink berry": [],
-            "green zombie": [], "blue zombie": [], "aqua zombie": [], "purple zombie": [], 
+    
+    view = {"red": [], "yellow": [], "orange": [], "pink": [],
+            "green": [], "blue": [], "aqua": [], "purple": [], 
             "possible berries":[], "possible zombies":[],  "wall": []}
+    color_flag = False
     for i in range(len(object_data)):
         x,y = object_data[i][0]
-        for cx in range(x - 10, x + 10):
-            for cy in range(y - 10, y + 10):
+        for cx in range(x - 3, x + 3):
+            for cy in range(y - 3, y + 3):
                 if (0 < cx < img_width and 0 < cy < img_height):
                     R  += image[cx][cy][0]
                     G  += image[cx][cy][1]
                     B  += image[cx][cy][2]
                     c += 1
+                    color = getColorName(image[cx][cy][0],image[cx][cy][1],image[cx][cy][2])
+                    color = color.lower()
+                    color = find_color(color)
+                    if (color != " "):
+                        color_flag = True
+                        
+        if color_flag == False:
+            color = getColorName(R/c,G/c,B/c)
+            color = color.lower()
+            color = find_color(color)
         
-        color = getColorName(R/c,G/c,B/c)
-        color = color.lower()
-        print(color,object_data[i])
-        # print(R/c,G/c,B/c,color)
-        view = add (color, view, object_data[i])[1]
-    view = helper_contour_add_dir(image, view, img_width)
+        print(object_data,color)
+        if (color != " "):
+            view = helper_contour(view, object_data[i], color)
+        else:
+            view = helper_contour(view, object_data[i], "possible berries")
+    view = helper_contour_add_dir(image, view, img_width,img_height)
     return view
 
 
-def add (color, view, object_data):
-    flag = True
-    if (color.find("red") != -1 or color.find("rose") != -1 or color.find("wine") != -1):
-        view = helper_contour(view, object_data, "red berry")
-    elif (color.find("yellow") != -1):
-        view = helper_contour(view, object_data, "yellow berry")
-    elif (color.find("orange") != -1):
-        view = helper_contour(view, object_data, "orange berry")
-    elif (color.find("pink")!= -1):
-        view = helper_contour(view, object_data, "pink berry")
-    elif (color.find("green") != -1):
-        if (object_data[1] > 5):
-            view = helper_contour(view, object_data, "green zombie")
-        # elif (object_data[1] < 10): 
-        #     view = helper_contour(view, object_data, i, "possible berries")
-    elif (color.find("blue")!= -1 or color.find("outer space") != -1 or color.find("stormcloud") != -1 or color.find("charcoal") != -1):
-        if (object_data[1] > 5):
-            view = helper_contour(view, object_data, "blue zombie")
-        # elif (object_data[i][1] < 10): 
-            # view = helper_contour(view, object_data, i, "possible berries")
-    elif (color.find("aqua") != -1):
-        if (object_data[1] > 5):
-            view = helper_contour(view, object_data, "aqua zombie")
-        # elif (object_data[i][1] < 10): 
-            # view = helper_contour(view, object_data, i, "possible berries")
-    elif (color.find("purple") != -1):
-        if (object_data[1] > 5):
-            view = helper_contour(view, object_data, "purple zombie")
-        # elif (object_data[i][1] < 10): 
-            # view = helper_contour(view, object_data, i, "possible berries")
-    else:
-        flag = False
-        view = helper_contour(view, object_data, "possible berries")
-    return (flag,view)
-
-# def image_data(image,image_width,image_height):
-#     view = {"red": [0,0,0], "yellow": [0,0,0], "orange": [0,0,0], "pink": [0,0,0],
-#             "green": [0,0,0], "blue": [0,0,0], "aqua": [0,0,0], "purple": [0,0,0], "wall": 0}
-#     objects = {"berries":[], "zombies": [], "others": []}
-#     # display the components of each pixel
-#     for x in range(0,image_width):
-#         for y in range(0,image_height):
-#             R = image[x][y][0]
-#             G = image[x][y][1]
-#             B = image[x][y][2]
-#             print(R, G, B)
-#             color =  rgb_to_colorname(R, G, B)
-#             if color != None:
-#                 if x < image_width/3:
-#                     view[color][0] += 1
-#                 elif x > image_width/3 and x < 2 * image_width/3:
-#                      view[color][1] += 1
-#                 else:
-#                     view[color][2] += 1
-            # if x == image_width/3:
-            #     for key, value in view.items(): 
-            #         print(value) 
-            #         if (key == "red" or key == "yellow" or key == "orange" or key == "pink"):
-            #             if value[0] > BERRY_DISTANCE: 
-            #                 objects["berries"].append([key,"left"])
-            #         else:
-            #             if value[0] > ZOMBIE_DISTANCE: 
-            #                 objects["zombies"].append([key,"left"])
-            
-            # if x == 2 * image_width/3:
-            #     for key, value in view.items(): 
-            #         print(value) 
-            #         if (key == "red" or key == "yellow" or key == "orange" or key == "pink"):
-            #             if value[1] > BERRY_DISTANCE: 
-            #                 objects["berries"].append([key,"middle"])
-            #         else:
-            #             if value[1] > ZOMBIE_DISTANCE: 
-            #                 objects["zombies"].append([key,"middle"])
-            
-            # if x == image_width:
-            #     for key, value in view.items(): 
-            #         print(value) 
-            #         if (key == "red" or key == "yellow" or key == "orange" or key == "pink"):
-            #             if value[2] > BERRY_DISTANCE: 
-            #                 objects["berries"].append([key,"right"])
-            #         else:
-            #             if value[2] > ZOMBIE_DISTANCE: 
-            #                 objects["zombies"].append([key,"right"])
-
-    # return view
