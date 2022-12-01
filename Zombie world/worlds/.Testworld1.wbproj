@@ -1,18 +1,19 @@
 Webots Project File version R2021b
-perspectives: 000000ff00000000fd0000000200000001000001b900000371fc0200000001fb0000001400540065007800740045006400690074006f0072010000001600000371000000a200ffffff000000030000073d0000005efc0100000001fb0000001a0043006f006e0073006f006c00650041006c006c0041006c006c01000000000000073d0000005400ffffff0000057e0000037100000001000000020000000100000008fc00000000
-simulationViewPerspectives: 000000ff000000010000000200000118000002020100000006010000000100
+perspectives: 000000ff00000000fd000000040000000000000064000002f2fc0100000001fb0000001e00480074006d006c0052006f0062006f007400570069006e0064006f00770100000000000000640000004e00ffffff000000010000011e00000286fc0200000001fb0000001400540065007800740045006400690074006f00720100000000000002860000004600ffffff000000020000040300000059fc0100000001fb0000001e00480074006d006c0052006f0062006f007400570069006e0064006f0077010000006a000004030000004e00ffffff000000030000052700000066fc0100000001fb0000001a0043006f006e0073006f006c00650041006c006c0041006c006c010000006a000005270000004e00ffffff000004030000022700000001000000020000000100000008fc00000000
+simulationViewPerspectives: 000000ff000000010000000200000000000002630100000006010000000100
 sceneTreePerspectives: 000000ff0000000100000002000000c0000000fc0100000006010000000200
 maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
-textFiles: 0 "../../zombieGame/ZombieSurvival4/Zombie world/controllers/youbot_controller/youbot_controller.py" "../../zombieGame/ZombieSurvival4/Zombie world/controllers/youbot_controller/youbot_zombie.py"
+textFiles: -1
+robotWindow: youBot::pedestrian(3)
 consoles: Console:All:All
-renderingDevicePerspectives: youBot:BackHighRes;1;1;0;0
-renderingDevicePerspectives: youBot:BackLowRes;1;1;0;0
-renderingDevicePerspectives: youBot:ForwardHighRes;1;1;0;0
-renderingDevicePerspectives: youBot:ForwardHighResSmall;1;1;0;0
-renderingDevicePerspectives: youBot:ForwardHighResSmallFov;1;1;0;0
-renderingDevicePerspectives: youBot:ForwardLowResBigFov;1;1;0;0
-renderingDevicePerspectives: youBot:LeftLowRes;1;1;0;0
-renderingDevicePerspectives: youBot:RightLowRes;1;1;0;0
-renderingDevicePerspectives: youBot:range-finder;1;1;0;0
+renderingDevicePerspectives: youBot:BackHighRes;0;0.652344;0;0
+renderingDevicePerspectives: youBot:BackLowRes;0;1;0.0819113;0.376129;656;337;247;126;0
+renderingDevicePerspectives: youBot:ForwardHighRes;0;0.652344;0;0.572307;592;367;256;128;0
+renderingDevicePerspectives: youBot:ForwardHighResSmall;0;0.652344;0;0.608434
+renderingDevicePerspectives: youBot:ForwardHighResSmallFov;0;0.652344;0;0.156177;592;367;256;128;0
+renderingDevicePerspectives: youBot:ForwardLowResBigFov;0;1;0.00134953;0;656;346;201;117;0
+renderingDevicePerspectives: youBot:LeftLowRes;0;1;0.170648;0.636364;656;341;180;122;0
+renderingDevicePerspectives: youBot:RightLowRes;0;1;0.221557;0.468192;283;337;367;134;0
+renderingDevicePerspectives: youBot:range-finder;1;4.75;0.00798579;0.0331325
