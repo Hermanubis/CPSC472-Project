@@ -23,18 +23,18 @@ def robot_reset(fr, fl, br, bl):
     bl.setVelocity(0)
 def turn_left(fr, fl, br, bl,  speed =  MAX_SPEED):
     print("turning left")
-    fr.setVelocity(speed/2)
+    fr.setVelocity(speed)
     fl.setVelocity(-speed)
-    br.setVelocity(speed/2)
+    br.setVelocity(speed)
     bl.setVelocity(-speed)
 
 
 def turn_right(fr, fl, br, bl, speed =  MAX_SPEED):
     print("turning right")
     fr.setVelocity(-speed)
-    fl.setVelocity(speed/2)
+    fl.setVelocity(speed)
     br.setVelocity(-speed)
-    bl.setVelocity(speed/2)
+    bl.setVelocity(speed)
 
 
 def go_straight(fr, fl, br, bl, speed =  MAX_SPEED):
@@ -129,8 +129,8 @@ def main():
 
 
     i=0
-    zombie_list = ['green zombie','blue zombie','aqua zombie','purple zombie']
-    berry_list = ['red berry','yellow berry','orange berry','pink berry','possible berries']
+    zombie_list = ['green','blue','aqua','purple', "possible zombies"]
+    berry_list = ['red','yellow','orange','pink','possible berries']
 
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
@@ -226,6 +226,7 @@ def main():
             for berry in berry_list:
                 if(view_info[berry]):
                     for singleBerry in view_info[berry]:
+                        print(singleBerry,"single berry ---------")
                         if(singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
                             move = singleBerry[2]
