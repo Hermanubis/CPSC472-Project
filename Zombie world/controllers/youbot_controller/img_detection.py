@@ -34,7 +34,7 @@ def object_info(img, img_width, img_height):
         if M['m00'] != 0:
             cx = int(M['m10']/M['m00'])
             cy = int(M['m01']/M['m00'])
-
+            area = cv2.contourArea(i)
             if (area < (img_height * img_width) / 2 ):
 
                 # cv2.drawContours(img, [i], -1, (0, 255, 0), 2)
@@ -49,22 +49,40 @@ def object_info(img, img_width, img_height):
     # cv2.destroyAllWindows()
     return object_data
 
-def helper_contour(view, object_data, num, type):
-    add = False
+def helper_contour(view, object_data, type):
+    add = True
+    removed_index = []
     if (view[type] == []):
-        view[type].append([object_data[num][0],object_data[num][1]])
+        view[type].append([object_data[0],object_data[1]])
     else:
         for i in view[type]:
-            if ((i[0][0] - object_data[num][0][0]) < 5 and (i[0][1] - object_data[num][0][1]) < 5):
-                i[0][0] = 0.5 * (i[0][0] + object_data[num][0][0])
-                i[0][1] = 0.5 * (i[0][1] + object_data[num][0][1])
-                i[1] = i[1] + object_data[num][1]
-                add = True
-        if add == False:
-            view[type].append([object_data[num][0],object_data[num][1]])
+            if ((i[0][0] - object_data[0][0]) < 5 and (i[0][1] - object_data[0][1]) < 5):
+                i[0][0] = 0.5 * (i[0][0] + object_data[0][0])
+                i[0][1] = 0.5 * (i[0][1] + object_data[0][1])
+                if (i[1] != 0):
+                    i[1] = i[1] + object_data[1]
+                else:
+                    i[1] += 1
+                add = False
+                break
+        if add:
+        #     if (type == "possible berries" and len(view["possible berries"]) > 6):
+        #         print("here1")
+        #         for i in range(len(view[type])):
+        #             if (5 < (view[type][i][0][0] - object_data[num][0][0]) < 25 and 5 < (view[type][i][0][1] - object_data[num][0][1]) < 25):
+        #                 print("here2")
+        #                 removed_index.append(i)
+        #     else:
+            view[type].append([object_data[0],object_data[1]])
+        # print(removed_index)
+        # if removed_index != []:
+        #     for i in removed_index:
+        #         view["possible berries"].pop(i)
+        #     view["possible zombies"].append([object_data[num][0],object_data[num][1]])
+        # else:
+        #     view[type].append([object_data[num][0],object_data[num][1]])
     return view
-
-def helper_contour_add_dir(view, img_width):
+def helper_contour_add_dir(image, view, img_width):
     for key, value in view.items():
         for object in value:
             if object[0][0] < 0.25 * img_width:
@@ -73,6 +91,19 @@ def helper_contour_add_dir(view, img_width):
                 object.append("right")
             else:
                 object.append("center")
+        # if key == "possible berries":
+        #     if (len(value) > 6):
+        #         for index in range(len(value)):
+        #             x = value[index][0][0]
+        #             y = value[index][0][0]
+        #             R  += image[x][y][0]
+        #             G  += image[x][y][1]
+        #             B  += image[x][y][2]
+        #             color = getColorName(R,G,B)
+        #             add(color, view, value[index])
+
+
+
     return view
 
 def zombie_berry_info(object_data, image, img_width, img_height):
@@ -82,7 +113,7 @@ def zombie_berry_info(object_data, image, img_width, img_height):
     c = 0
     view = {"red berry": [], "yellow berry": [], "orange berry": [], "pink berry": [],
             "green zombie": [], "blue zombie": [], "aqua zombie": [], "purple zombie": [],
-            "possible berries":[], "wall": []}
+            "possible berries":[], "possible zombies":[],  "wall": []}
     for i in range(len(object_data)):
         x,y = object_data[i][0]
         for cx in range(x - 10, x + 10):
@@ -92,46 +123,50 @@ def zombie_berry_info(object_data, image, img_width, img_height):
                     G  += image[cx][cy][1]
                     B  += image[cx][cy][2]
                     c += 1
+
         color = getColorName(R/c,G/c,B/c)
         color = color.lower()
-        if (color.find("red") != -1 or color.find("rose") != -1 or color.find("wine") != -1):
-            view = helper_contour(view, object_data, i, "red berry")
-        elif (color.find("yellow") != -1):
-            view = helper_contour(view, object_data, i, "yellow berry")
-        elif (color.find("orange") != -1):
-            view = helper_contour(view, object_data, i, "orange berry")
-        elif (color.find("pink")!= -1):
-            view = helper_contour(view, object_data, i, "pink berry")
-        elif (color.find("green") != -1):
-            if (object_data[i][1] > 5):
-                view = helper_contour(view, object_data, i, "green zombie")
-            elif (object_data[i][1] < 10):
-                view = helper_contour(view, object_data, i, "possible berries")
-        elif (color.find("blue")!= -1):
-            if (object_data[i][1] > 5):
-                view = helper_contour(view, object_data, i, "blue zombie")
-            elif (object_data[i][1] < 10):
-                view = helper_contour(view, object_data, i, "possible berries")
-        elif (color.find("aqua") != -1):
-            if (object_data[i][1] > 5):
-                view = helper_contour(view, object_data, i, "aqua zombie")
-            elif (object_data[i][1] < 10):
-                view = helper_contour(view, object_data, i, "possible berries")
-        elif (color.find("purple") != -1):
-            if (object_data[i][1] > 5):
-                view = helper_contour(view, object_data, i, "purple zombie")
-            elif (object_data[i][1] < 10):
-                view = helper_contour(view, object_data, i, "possible berries")
-        else:
-            if (object_data[i][1] < 10):
-                view = helper_contour(view, object_data, i, "possible berries")
-    view = helper_contour_add_dir(view, img_width)
+        print(color,object_data[i])
+        # print(R/c,G/c,B/c,color)
+        view = add (color, view, object_data[i])[1]
+    view = helper_contour_add_dir(image, view, img_width)
     return view
 
 
-
-
-
+def add (color, view, object_data):
+    flag = True
+    if (color.find("red") != -1 or color.find("rose") != -1 or color.find("wine") != -1):
+        view = helper_contour(view, object_data, "red berry")
+    elif (color.find("yellow") != -1):
+        view = helper_contour(view, object_data, "yellow berry")
+    elif (color.find("orange") != -1):
+        view = helper_contour(view, object_data, "orange berry")
+    elif (color.find("pink")!= -1):
+        view = helper_contour(view, object_data, "pink berry")
+    elif (color.find("green") != -1):
+        if (object_data[1] > 5):
+            view = helper_contour(view, object_data, "green zombie")
+        # elif (object_data[1] < 10):
+        #     view = helper_contour(view, object_data, i, "possible berries")
+    elif (color.find("blue")!= -1 or color.find("outer space") != -1 or color.find("stormcloud") != -1 or color.find("charcoal") != -1):
+        if (object_data[1] > 5):
+            view = helper_contour(view, object_data, "blue zombie")
+        # elif (object_data[i][1] < 10):
+            # view = helper_contour(view, object_data, i, "possible berries")
+    elif (color.find("aqua") != -1):
+        if (object_data[1] > 5):
+            view = helper_contour(view, object_data, "aqua zombie")
+        # elif (object_data[i][1] < 10):
+            # view = helper_contour(view, object_data, i, "possible berries")
+    elif (color.find("purple") != -1):
+        if (object_data[1] > 5):
+            view = helper_contour(view, object_data, "purple zombie")
+        # elif (object_data[i][1] < 10):
+            # view = helper_contour(view, object_data, i, "possible berries")
+    else:
+        flag = False
+        view = helper_contour(view, object_data, "possible berries")
+    return (flag,view)
 
 # def image_data(image,image_width,image_height):
 #     view = {"red": [0,0,0], "yellow": [0,0,0], "orange": [0,0,0], "pink": [0,0,0],
