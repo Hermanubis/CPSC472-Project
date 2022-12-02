@@ -51,7 +51,7 @@ def main():
     robot = Supervisor()
 
     # get the time step of the current world.
-    timestep = int(robot.getBasicTimeStep())
+    timestep = int(robot.getBasicTimeStep()*2)
 
     #health, energy, armour in that order
     robot_info = [100,100,0]
@@ -196,8 +196,14 @@ def main():
         print(camera3.getHeight())
 
         image = camera3.getImageArray()
+        imageR = camera6.getImageArray()
+        imageL = camera7.getImageArray()
         view_info = {}
+        view_info_left = {}
+        view_info_right = {}
         object_data = []
+        object_data_left = []
+        object_data_right = []
         if image:
             # for x in range(0,camera2.getWidth()):
             #     for y in range(0,camera2.getHeight()):
@@ -210,26 +216,75 @@ def main():
             view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight(), )
             print("view info", view_info)
 
-            for zombie in zombie_list:
 
-                if(view_info[zombie]):
-                    for singleZombie in view_info[zombie]:
-                        if(singleZombie[2] == "center"):
-                            turn_right(fr, fl, br, bl)
-                        elif (singleZombie[2] == "right"):
-                            turn_left(fr, fl, br, bl)
-                        else:
-                            turn_right(fr, fl, br, bl)
+
+        if imageR:
+            # for x in range(0,camera2.getWidth()):
+            #     for y in range(0,camera2.getHeight()):
+            #         red.append(image[x][y][0])
+            #         green.append(image[x][y][1])
+            #         blue.append(image[x][y][2])
+            #         gray.append((image[x][y][0] + image[x][y][1] + image[x][y][2]) / 3)
+            data = np.array(imageR, dtype = np.uint8)
+            object_data_right = object_info(data, camera6.getHeight(), camera6.getWidth())
+            view_info_right = zombie_berry_info(object_data_right, imageR, camera6.getWidth(), camera6.getHeight(), )
+            print("view info R", view_info_right)
+
+        if imageL:
+            # for x in range(0,camera2.getWidth()):
+            #     for y in range(0,camera2.getHeight()):
+            #         red.append(image[x][y][0])
+            #         green.append(image[x][y][1])
+            #         blue.append(image[x][y][2])
+            #         gray.append((image[x][y][0] + image[x][y][1] + image[x][y][2]) / 3)
+            data = np.array(imageL, dtype = np.uint8)
+            object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
+            view_info_left = zombie_berry_info(object_data_left, imageL, camera7.getWidth(), camera7.getHeight(), )
+            print("view info L", view_info_left)
+
+            # for zombie in zombie_list:
+
+            #     if(view_info[zombie]):
+            #         for singleZombie in view_info[zombie]:
+            #             if(len(singleBerry)>2 and singleZombie[2] == "center"):
+            #                 turn_right(fr, fl, br, bl)
+            #             elif (len(singleBerry)>2 and singleZombie[2] == "right"):
+            #                 turn_left(fr, fl, br, bl)
+            #             else:
+            #                 turn_right(fr, fl, br, bl)
 
             maxBerry = 0
             move = "center"
+            noBerries = True
             for berry in berry_list:
                 if(view_info[berry]):
+                    noBerries = False
                     for singleBerry in view_info[berry]:
 
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
                             move = singleBerry[2]
+
+            if(noBerries):
+                noBerriesR = True
+                for berry in berry_list:
+                    if(view_info_right[berry]):
+                        noBerriesR = False
+                        for singleBerry in view_info_right[berry]:
+
+                            if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                                maxBerry = singleBerry[1]
+                                move = singleBerry[2]
+                if(noBerriesR):
+                    for berry in berry_list:
+                        if(view_info_left[berry]):
+                            noBerriesR = False
+                            for singleBerry in view_info_left[berry]:
+
+                                if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                                    maxBerry = singleBerry[1]
+                                    move = singleBerry[2]
+
             print("move", move)
             if(move == "center"):
                 go_straight(fr, fl, br, bl)
