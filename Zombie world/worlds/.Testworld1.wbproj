@@ -9,11 +9,11 @@ textFiles: -1
 robotWindow: youBot::pedestrian(3)
 consoles: Console:All:All
 renderingDevicePerspectives: youBot:BackHighRes;0;0.652344;0;0
-renderingDevicePerspectives: youBot:BackLowRes;0;1;0.0819113;0.376129;656;337;247;126;0
-renderingDevicePerspectives: youBot:ForwardHighRes;0;0.652344;0;0.572307;592;367;256;128;0
+renderingDevicePerspectives: youBot:BackLowRes;1;1;0.0819113;0.376129
+renderingDevicePerspectives: youBot:ForwardHighRes;1;0.652344;0;0.572307
 renderingDevicePerspectives: youBot:ForwardHighResSmall;0;0.652344;0;0.608434
-renderingDevicePerspectives: youBot:ForwardHighResSmallFov;0;0.652344;0;0.156177;592;367;256;128;0
-renderingDevicePerspectives: youBot:ForwardLowResBigFov;0;1;0.00134953;0;656;346;201;117;0
-renderingDevicePerspectives: youBot:LeftLowRes;0;1;0.170648;0.636364;656;341;180;122;0
-renderingDevicePerspectives: youBot:RightLowRes;0;1;0.221557;0.468192;283;337;367;134;0
+renderingDevicePerspectives: youBot:ForwardHighResSmallFov;1;0.652344;0;0.156177
+renderingDevicePerspectives: youBot:ForwardLowResBigFov;1;1;0.00134953;0
+renderingDevicePerspectives: youBot:LeftLowRes;1;1;0.170648;0.636364
+renderingDevicePerspectives: youBot:RightLowRes;1;1;0.221557;0.468192
 renderingDevicePerspectives: youBot:range-finder;1;2;0.00798579;0.0331325

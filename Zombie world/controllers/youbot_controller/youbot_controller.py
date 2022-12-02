@@ -191,19 +191,22 @@ def main():
          #called every timestep
 
         robot_reset(fr, fl, br, bl)
-        print("camera image\n")
+        # print("camera image\n")
         print(camera3.getWidth())
         print(camera3.getHeight())
 
         image = camera3.getImageArray()
+        imageB = camera5.getImageArray()
         imageR = camera6.getImageArray()
         imageL = camera7.getImageArray()
         view_info = {}
         view_info_left = {}
         view_info_right = {}
+        view_info_back = {}
         object_data = []
         object_data_left = []
         object_data_right = []
+        object_data_back = []
         if image:
             # for x in range(0,camera2.getWidth()):
             #     for y in range(0,camera2.getHeight()):
@@ -241,6 +244,17 @@ def main():
             object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
             view_info_left = zombie_berry_info(object_data_left, imageL, camera7.getWidth(), camera7.getHeight(), )
             print("view info L", view_info_left)
+        if imageB:
+            # for x in range(0,camera2.getWidth()):
+            #     for y in range(0,camera2.getHeight()):
+            #         red.append(image[x][y][0])
+            #         green.append(image[x][y][1])
+            #         blue.append(image[x][y][2])
+            #         gray.append((image[x][y][0] + image[x][y][1] + image[x][y][2]) / 3)
+            data = np.array(imageB, dtype = np.uint8)
+            object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
+            view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight(), )
+            print("view info B", view_info_back)
 
 
             maxZombie = 0
@@ -272,6 +286,15 @@ def main():
                             maxZombie = singleZombie[1]
                             avoid = "right"
 
+            for zombie in zombie_list:
+                if(view_info_back[zombie]):
+                    noZombie = False
+                    for singleZombie in view_info_back[zombie]:
+
+                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                            maxZombie = singleZombie[1]
+                            avoid = "straight"
+
             maxBerry = 0
             move = "center"
             # noBerries = True
@@ -302,26 +325,28 @@ def main():
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
                             move = "left"
+            print(maxZombie,"maxZombie")
+            print(maxBerry,"maxBerry")
             if(not noZombie):
                 print("avoid", avoid)
                 if(avoid == "center"):
                     turn_right(fr, fl, br, bl)
                 elif (avoid == "right"):
                     turn_left(fr, fl, br, bl)
+                elif(avoid == "straight"):
+                    go_straight(fr, fl, br, bl)
                 else:
                     turn_right(fr, fl, br, bl)
 
-            if(noZombie or maxBerry>maxZombie):
+            if(noZombie or maxBerry>maxZombie or maxZombie<100):
                 if(maxBerry>maxZombie):
                     print("chase berry first")
                 print("move", move)
                 if(move == "center"):
                     go_straight(fr, fl, br, bl)
                 elif (move == "right"):
-                    go_straight(fr, fl, br, bl)
                     turn_right(fr, fl, br, bl)
                 else:
-                    go_straight(fr, fl, br, bl)
                     turn_left(fr, fl, br, bl)
 
         #possible pseudocode for moving forward, then doing a 90 degree left turn
