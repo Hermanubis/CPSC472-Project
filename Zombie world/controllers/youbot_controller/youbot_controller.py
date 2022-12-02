@@ -226,8 +226,8 @@ def main():
             for berry in berry_list:
                 if(view_info[berry]):
                     for singleBerry in view_info[berry]:
-                        print(singleBerry,"single berry ---------")
-                        if(singleBerry[1] > maxBerry):
+
+                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
                             move = singleBerry[2]
             print("move", move)
