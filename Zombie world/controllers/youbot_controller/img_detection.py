@@ -28,7 +28,7 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
@@ -97,11 +97,11 @@ def helper_contour_add_dir(image, view, img_width, img_height):
                     new_data.append(object)
             view[key] = new_data
         if (key == "possible berries"):
-            for object in copy_data:
-                if object[1] > 20:
-                    new_data.append(object)
+            for data in copy_data:
+                if data[1] > 20:
+                    new_data.append(data)
             view[key] = new_data
-        for object in value:
+        for object in view[key]:
             if object[0][0] < 0.25 * img_width:
                 object.append("left")
             elif object[0][0] > 0.75 * img_width:
@@ -164,5 +164,5 @@ def zombie_berry_info(object_data, image, img_width, img_height):
             view = helper_contour(view, object_data[i], color)
         else:
             view = helper_contour(view, object_data[i], "possible berries")
-    view = helper_contour_add_dir(image, view, img_width,img_height)
+    view = helper_contour_add_dir(image, view, img_width, img_height)
     return view
