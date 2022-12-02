@@ -255,6 +255,22 @@ def main():
                             maxZombie = singleZombie[1]
                             avoid = singleZombie[2]
 
+            for zombie in zombie_list:
+                if(view_info_left[zombie]):
+                    noZombie = False
+                    for singleZombie in view_info_left[zombie]:
+
+                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                            maxZombie = singleZombie[1]
+                            avoid = "left"
+            for zombie in zombie_list:
+                if(view_info_right[zombie]):
+                    noZombie = False
+                    for singleZombie in view_info_right[zombie]:
+
+                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                            maxZombie = singleZombie[1]
+                            avoid = "right"
 
             maxBerry = 0
             move = "center"
