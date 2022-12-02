@@ -23,26 +23,26 @@ def robot_reset(fr, fl, br, bl):
     bl.setVelocity(0)
 def turn_left(fr, fl, br, bl,  speed =  MAX_SPEED):
     print("turning left")
-    fr.setVelocity(speed)
-    fl.setVelocity(-speed*2)
-    br.setVelocity(speed)
-    bl.setVelocity(-speed*2)
+    fr.setVelocity(speed/2)
+    fl.setVelocity(-speed)
+    br.setVelocity(speed/2)
+    bl.setVelocity(-speed)
 
 
 def turn_right(fr, fl, br, bl, speed =  MAX_SPEED):
     print("turning right")
-    fr.setVelocity(-speed*2)
-    fl.setVelocity(speed)
-    br.setVelocity(-speed*2)
-    bl.setVelocity(speed)
+    fr.setVelocity(-speed)
+    fl.setVelocity(speed/2)
+    br.setVelocity(-speed)
+    bl.setVelocity(speed/2)
 
 
 def go_straight(fr, fl, br, bl, speed =  MAX_SPEED):
     print("go straight")
-    fr.setVelocity(speed/2)
-    fl.setVelocity(speed/2)
-    br.setVelocity(speed/2)
-    bl.setVelocity(speed/2)
+    fr.setVelocity(speed)
+    fl.setVelocity(speed)
+    br.setVelocity(speed)
+    bl.setVelocity(speed)
 
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
@@ -129,13 +129,67 @@ def main():
 
 
     i=0
+    zombie_list = ['green zombie','blue zombie','aqua zombie','purple zombie']
+    berry_list = ['red berry','yellow berry','orange berry','pink berry','possible berries']
 
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
-    zombie_list = ['green zombie','blue zombie','aqua zombie','purple zombie']
-    berry_list = ['red berry','yellow berry','orange berry','pink berry','possible berries']
+
     while(robot_not_dead == 1):
-        i = i + 1
+        if(robot_info[0] < 0):
+
+            robot_not_dead = 0
+            print("ROBOT IS OUT OF HEALTH")
+            #if(zombieTest):
+            #    print("TEST PASSED")
+            #else:
+            #    print("TEST FAILED")
+            #robot.simulationQuit(20)
+            #exit()
+
+        if(timer%2==0):
+            trans = trans_field.getSFVec3f()
+            robot_info = check_berry_collision(robot_info, trans[0], trans[2], robot)
+            robot_info = check_zombie_collision(robot_info, trans[0], trans[2], robot)
+
+        if(timer%16==0):
+            robot_info = update_robot(robot_info)
+            timer = 0
+
+        if(robot.step(timestep)==-1):
+            exit()
+        leftMotor = robot.getDevice('wheel1')
+        rightMotor = robot.getDevice('wheel2')
+        leftMotor.setPosition(float('inf'))
+        rightMotor.setPosition(float('inf'))
+        leftMotor.setVelocity(0.0)
+        rightMotor.setVelocity(0.0)
+
+        timer += 1
+        print(camera1.hasRecognition()," 1")
+        print(camera2.hasRecognition()," 2")
+        print(camera3.hasRecognition()," 3")
+        print(camera4.hasRecognition()," 4")
+        print(camera5.hasRecognition()," 5")
+        print(camera6.hasRecognition()," 6")
+        print(camera7.hasRecognition()," 7")
+        print(camera8.hasRecognition()," 8")
+        # object = camera1.getRecognitionObjects()
+
+        # if object:
+    # display the components of each pixel
+          # for x in range(0,camera1.getWidth()):
+             # for y in range(0,camera1.getHeight()):
+                # red   = image[x][y][0]
+                # green = image[x][y][1]
+                # blue  = image[x][y][2]
+                # gray  = (red + green + blue) / 3
+                # print('r='+str(red)+' g='+str(green)+' b='+str(blue))
+                # print(object)
+
+     #------------------CHANGE CODE BELOW HERE ONLY--------------------------
+         #called every timestep
+
         robot_reset(fr, fl, br, bl)
         print("camera image\n")
         print(camera3.getWidth())
@@ -155,6 +209,7 @@ def main():
             object_data = object_info(data, camera3.getHeight(), camera3.getWidth())
             view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight(), )
             print("view info", view_info)
+
             for zombie in zombie_list:
 
                 if(view_info[zombie]):
@@ -165,44 +220,24 @@ def main():
                             turn_left(fr, fl, br, bl)
                         else:
                             turn_right(fr, fl, br, bl)
-                else:
 
-                    go_straight(fr, fl, br, bl)
-
-
+            maxBerry = 0
+            move = "center"
             for berry in berry_list:
                 if(view_info[berry]):
                     for singleBerry in view_info[berry]:
-                        if(singleBerry[2] == "center"):
-                            go_straight(fr, fl, br, bl)
-                        elif (singleBerry[2] == "right"):
-                            turn_right(fr, fl, br, bl)
-                        else:
-                            turn_left(fr, fl, br, bl)
-                else:
-
-                    go_straight(fr, fl, br, bl)
-
-
-
-        if(timer%2==0):
-            trans = trans_field.getSFVec3f()
-            robot_info = check_berry_collision(robot_info, trans[0], trans[2], robot)
-            robot_info = check_zombie_collision(robot_info, trans[0], trans[2], robot)
-
-        if(timer%16==0):
-            robot_info = update_robot(robot_info)
-            timer = 0
-
-        if(robot.step(timestep)==-1):
-            exit()
-
-
-        timer += 1
-
-     #------------------CHANGE CODE BELOW HERE ONLY--------------------------
-         #called every timestep
-
+                        if(singleBerry[1] > maxBerry):
+                            maxBerry = singleBerry[1]
+                            move = singleBerry[2]
+            print("move", move)
+            if(move == "center"):
+                go_straight(fr, fl, br, bl)
+            elif (move == "right"):
+                go_straight(fr, fl, br, bl)
+                turn_right(fr, fl, br, bl)
+            else:
+                go_straight(fr, fl, br, bl)
+                turn_left(fr, fl, br, bl)
 
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
