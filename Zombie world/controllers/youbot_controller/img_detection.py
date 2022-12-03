@@ -102,7 +102,7 @@ def helper_contour_add_dir(image, view, img_width, img_height):
                 if data[1] > 20:
                     new_data.append(data)
             view[key] = new_data
-        if key != "wall":
+        if key != "wall" and key != "boundary":
             for object in view[key]:
                 if object[0][0] < 0.25 * img_width:
                     object.append("left")
@@ -132,10 +132,13 @@ def zombie_berry_info(object_data, image, img_width, img_height):
 
     view = {"red": [], "yellow": [], "orange": [], "pink": [],
             "green": [], "blue": [], "aqua": [], "purple": [],
-            "possible berries":[], "possible zombies":[],  "wall": False}
+            "possible berries":[], "possible zombies":[],  "wall": False, "boundary": False}
 
     # print(object_data) 
+    print("---------")
     view = wall_test(view, object_data, image, img_width, img_height)
+    if (view["boundary"] ==  True or view["wall"] ==  True ):
+        return view
     for i in range(len(object_data)):
         color_flag = False
         x,y = object_data[i][0]
@@ -184,6 +187,20 @@ def wall_test(view, object_data, image, img_width, img_height):
         color_wall = color_wall.lower()
         if (color_wall == "outer space" or color_wall == "light gray" or color_wall.find("white") != -1):
             view["wall"] = True
+    g_x = int(img_width /2)
+    g_y = int(img_height * 6.5/10)
+    R_g  = image[g_x][g_y][0]
+    G_g  = image[g_x][g_y][1]
+    B_g  = image[g_x][g_y][2]
+    color_bound = getColorName(R_g,G_g,B_g)
+    color_bound = color_bound.lower()
+    if (color_bound != "tan" and color_bound != "pale chestnut" and color_bound != "pastel pink"):
+        g_x = int(img_width /3)
+        R_g  = image[g_x][g_y][0]
+        G_g  = image[g_x][g_y][1]
+        B_g  = image[g_x][g_y][2]
+        color_bound = getColorName(R_g,G_g,B_g)
+        color_bound = color_bound.lower()
+        if (color_bound != "tan" or color_bound != "pale chestnut" or color_bound != "pastel pink"):
+            view["boundary"] = True
     return view
-        
-
