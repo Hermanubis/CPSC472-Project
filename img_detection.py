@@ -8,7 +8,6 @@ ZOMBIE_DISTANCE = 30
 
 
 
-
 index=["color","color_name","hex","R","G","B"]
 csv = pd.read_csv('./colors.csv', names=index, header=None)
 
@@ -29,7 +28,7 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
@@ -71,7 +70,7 @@ def helper_contour(view, object_data, type):
                     i[1] += 1
                 add = False
                 break
-        if add:
+        if add: 
         #     if (type == "possible berries" and len(view["possible berries"]) > 6):
         #         print("here1")
         #         for i in range(len(view[type])):
@@ -82,12 +81,12 @@ def helper_contour(view, object_data, type):
             view[type].append([object_data[0],object_data[1]])
         # print(removed_index)
         # if removed_index != []:
-        #     for i in removed_index:
+        #     for i in removed_index: 
         #         view["possible berries"].pop(i)
         #     view["possible zombies"].append([object_data[num][0],object_data[num][1]])
         # else:
         #     view[type].append([object_data[num][0],object_data[num][1]])
-    return view
+    return view 
 def helper_contour_add_dir(image, view, img_width, img_height):
     for key, value in view.items():
         copy_data = copy.deepcopy(value)
@@ -98,18 +97,17 @@ def helper_contour_add_dir(image, view, img_width, img_height):
                     new_data.append(object)
             view[key] = new_data
         if (key == "possible berries"):
-            for data in copy_data:
-                if data[1] > 20:
-                    new_data.append(data)
+            for object in copy_data:
+                if object[1] > 20:
+                    new_data.append(object)
             view[key] = new_data
-        if key != "wall" and key != "boundary":
-            for object in view[key]:
-                if object[0][0] < 0.25 * img_width:
-                    object.append("left")
-                elif object[0][0] > 0.75 * img_width:
-                    object.append("right")
-                else:
-                    object.append("center")
+        for object in value:
+            if object[0][0] < 0.25 * img_width:
+                object.append("left")
+            elif object[0][0] > 0.75 * img_width:
+                object.append("right")
+            else:
+                object.append("center")
     return view
 
 # find the class based on various color name
@@ -129,23 +127,16 @@ def zombie_berry_info(object_data, image, img_width, img_height):
     G = 0
     B = 0
     c = 0
-
+    
     view = {"red": [], "yellow": [], "orange": [], "pink": [],
-            "green": [], "blue": [], "aqua": [], "purple": [],
-            "possible berries":[], "possible zombies":[],  "wall": False, "boundary": False}
+            "green": [], "blue": [], "aqua": [], "purple": [], 
+            "possible berries":[], "possible zombies":[],  "wall": []}
 
-    # print(object_data) 
-    print("---------")
-    view = wall_test(view, object_data, image, img_width, img_height)
-    if (view["boundary"] ==  True or view["wall"] ==  True ):
-        return view
+    # print(object_data)
+
     for i in range(len(object_data)):
         color_flag = False
         x,y = object_data[i][0]
-        # print(image[x][y][0],image[x][y][1],image[x][y][2])
-        # color = getColorName(image[x][y][0],image[x][y][1],image[x][y][2])
-        # print(color)     
-          
         for cx in range(x - 4, x + 8):
             if color_flag: break
             for cy in range(y, y + 1):
@@ -160,47 +151,20 @@ def zombie_berry_info(object_data, image, img_width, img_height):
                     if (color != " "):
                         color_flag = True
                         # print(color)
-                        break
-        # print(x, y, color_flag)
+                        break     
+        # print(x, y, color_flag) 
         if color_flag == False:
             if c == 0: c = 1
             color = getColorName(R/c,G/c,B/c)
             color = color.lower()
             # print(color)
             color = find_color(color)
-
+        
         if (color != " "):
             view = helper_contour(view, object_data[i], color)
         else:
             view = helper_contour(view, object_data[i], "possible berries")
-    view = helper_contour_add_dir(image, view, img_width, img_height)
+    view = helper_contour_add_dir(image, view, img_width,img_height)
     return view
 
-def wall_test(view, object_data, image, img_width, img_height):
-    if (object_data == []):
-        g_x = int(img_width /2)
-        g_y = int(img_height * 7/10)
-        R_g  = image[g_x][g_y][0]
-        G_g  = image[g_x][g_y][1]
-        B_g  = image[g_x][g_y][2]
-        color_wall = getColorName(R_g,G_g,B_g)
-        color_wall = color_wall.lower()
-        if (color_wall == "outer space" or color_wall == "light gray" or color_wall.find("white") != -1):
-            view["wall"] = True
-    g_x = int(img_width /2)
-    g_y = int(img_height * 6.5/10)
-    R_g  = image[g_x][g_y][0]
-    G_g  = image[g_x][g_y][1]
-    B_g  = image[g_x][g_y][2]
-    color_bound = getColorName(R_g,G_g,B_g)
-    color_bound = color_bound.lower()
-    if (color_bound != "tan" and color_bound != "pale chestnut" and color_bound != "pastel pink"):
-        g_x = int(img_width /3)
-        R_g  = image[g_x][g_y][0]
-        G_g  = image[g_x][g_y][1]
-        B_g  = image[g_x][g_y][2]
-        color_bound = getColorName(R_g,G_g,B_g)
-        color_bound = color_bound.lower()
-        if (color_bound != "tan" or color_bound != "pale chestnut" or color_bound != "pastel pink"):
-            view["boundary"] = True
-    return view
+
