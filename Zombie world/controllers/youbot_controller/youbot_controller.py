@@ -44,6 +44,12 @@ def go_straight(fr, fl, br, bl, speed =  MAX_SPEED):
     br.setVelocity(speed)
     bl.setVelocity(speed)
 
+def go_back(fr, fl, br, bl, speed =  5.0):
+    print("go straight")
+    fr.setVelocity(-speed)
+    fl.setVelocity(-speed)
+    br.setVelocity(-speed)
+    bl.setVelocity(-speed)
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -257,97 +263,119 @@ def main():
             print("view info B", view_info_back)
 
 
-            maxZombie = 0
-            avoid = "center"
-            noZombie = True
-            for zombie in zombie_list:
-                if(view_info[zombie]):
-                    noZombie = False
-                    for singleZombie in view_info[zombie]:
+            if(view_info["wall"] and view_info_left["wall"]):
+                turn_right(fr, fl, br, bl)
+            if(view_info["wall"] and view_info_right["wall"]):
+                turn_left(fr, fl, br, bl)
+            if(view_info["boundary"] and view_info_left["boundary"]):
+                turn_right(fr, fl, br, bl)
+            if(view_info["boundary"] and view_info_right["boundary"]):
+                turn_left(fr, fl, br, bl)
+            if(view_info["boundary"]):
+                turn_right(fr, fl, br, bl)
+            if(view_info["wall"]):
+                turn_right(fr, fl, br, bl)
+            else:
+                maxZombie = 0
+                avoid = "center"
+                front = False
+                left = False
+                right = False
+                noZombie = True
+                for zombie in zombie_list:
+                    if(view_info[zombie]):
+                        noZombie = False
+                        for singleZombie in view_info[zombie]:
 
-                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
-                            maxZombie = singleZombie[1]
-                            avoid = singleZombie[2]
+                            if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                                maxZombie = singleZombie[1]
+                                avoid = "center"
+                                front = True
 
-            for zombie in zombie_list:
-                if(view_info_left[zombie]):
-                    noZombie = False
-                    for singleZombie in view_info_left[zombie]:
+                for zombie in zombie_list:
+                    if(view_info_left[zombie]):
+                        noZombie = False
+                        for singleZombie in view_info_left[zombie]:
 
-                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
-                            maxZombie = singleZombie[1]
-                            avoid = "left"
-            for zombie in zombie_list:
-                if(view_info_right[zombie]):
-                    noZombie = False
-                    for singleZombie in view_info_right[zombie]:
+                            if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                                maxZombie = singleZombie[1]
+                                avoid = "left"
+                                left = True
+                                
+                for zombie in zombie_list:
+                    if(view_info_right[zombie]):
+                        noZombie = False
+                        for singleZombie in view_info_right[zombie]:
 
-                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
-                            maxZombie = singleZombie[1]
-                            avoid = "right"
+                            if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                                maxZombie = singleZombie[1]
+                                avoid = "right"
+                                right = True
 
-            for zombie in zombie_list:
-                if(view_info_back[zombie]):
-                    noZombie = False
-                    for singleZombie in view_info_back[zombie]:
+                for zombie in zombie_list:
+                    if(view_info_back[zombie]):
+                        noZombie = False
+                        for singleZombie in view_info_back[zombie]:
 
-                        if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
-                            maxZombie = singleZombie[1]
-                            avoid = "straight"
+                            if(len(singleZombie)>2 and singleZombie[1] > maxZombie):
+                                maxZombie = singleZombie[1]
+                                avoid = "straight"
 
-            maxBerry = 0
-            move = "center"
-            # noBerries = True
-            for berry in berry_list:
-                if(view_info[berry]):
-                    # noBerries = False
-                    for singleBerry in view_info[berry]:
+                maxBerry = 0
+                move = "center"
+                # noBerries = True
+                for berry in berry_list:
+                    if(view_info[berry]):
+                        # noBerries = False
+                        for singleBerry in view_info[berry]:
 
-                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
-                            maxBerry = singleBerry[1]
-                            move = singleBerry[2]
+                            if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                                maxBerry = singleBerry[1]
+                                move = singleBerry[2]
 
 
-                # noBerriesR = True
-            for berry in berry_list:
-                if(view_info_right[berry]):
-                    # noBerriesR = False
-                    for singleBerry in view_info_right[berry]:
+                    # noBerriesR = True
+                for berry in berry_list:
+                    if(view_info_right[berry]):
+                        # noBerriesR = False
+                        for singleBerry in view_info_right[berry]:
 
-                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
-                            maxBerry = singleBerry[1]
-                            move = "right"
-            for berry in berry_list:
-                if(view_info_left[berry]):
-                    # noBerriesR = False
-                    for singleBerry in view_info_left[berry]:
+                            if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                                maxBerry = singleBerry[1]
+                                move = "right"
+                for berry in berry_list:
+                    if(view_info_left[berry]):
+                        # noBerriesR = False
+                        for singleBerry in view_info_left[berry]:
 
-                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
-                            maxBerry = singleBerry[1]
-                            move = "left"
-            print(maxZombie,"maxZombie")
-            print(maxBerry,"maxBerry")
-            if(not noZombie):
-                print("avoid", avoid)
-                if(avoid == "center"):
-                    turn_right(fr, fl, br, bl)
-                elif (avoid == "right"):
-                    turn_left(fr, fl, br, bl)
-                elif(avoid == "straight"):
-                    go_straight(fr, fl, br, bl)
-                else:
-                    turn_right(fr, fl, br, bl)
+                            if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                                maxBerry = singleBerry[1]
+                                move = "left"
+                print(maxZombie,"maxZombie")
+                print(maxBerry,"maxBerry")
+                if(not noZombie):
+                    print("avoid", avoid)
+                    if(front ==True and left == True and right == True):
+                        go_straight(fr, fl, br, bl)
+                    elif(avoid == "center"):
+                        turn_right(fr, fl, br, bl)
+                    elif (avoid == "right"):
+                        turn_left(fr, fl, br, bl)
+                    elif(avoid == "straight"):
+                        go_straight(fr, fl, br, bl)
+                    else:
+                        turn_right(fr, fl, br, bl)
 
-            if(noZombie or maxBerry>maxZombie or maxZombie<100):
-                if(maxBerry>maxZombie):
-                    print("chase berry first")
-                print("move", move)
-                if(move == "center"):
-                    go_straight(fr, fl, br, bl)
-                elif (move == "right"):
-                    turn_right(fr, fl, br, bl)
-                else:
-                    turn_left(fr, fl, br, bl)
+                if(noZombie or maxBerry>maxZombie or maxZombie<100):
+                    if(maxBerry>maxZombie):
+                        print("chase berry first")
+                    print("move", move)
+                    if(move == "center"):
+                        go_straight(fr, fl, br, bl)
+                    elif (move == "right"):
+                        turn_right(fr, fl, br, bl)
+                    else:
+                        turn_left(fr, fl, br, bl)
 
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
