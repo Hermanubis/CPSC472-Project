@@ -181,16 +181,18 @@ def arm_init(robot):
   arm_elements[Arm.ARM4.value] = robot.getDevice("arm4")
   arm_elements[Arm.ARM5.value] = robot.getDevice("arm5")
 
-  arm_elements[Arm.ARM2.value].setVelocity(0.5)
+#   arm_elements[Arm.ARM2.value].setVelocity(0.5)
 
-  arm_set_height(Height.ARM_RESET.value)
-  arm_set_orientation(Orientation.ARM_FRONT.value)
+#   arm_set_height(Height.ARM_RESET.value)
+#   arm_set_orientation(Orientation.ARM_FRONT.value)
+  arm_reset()
 
 def arm_reset():
+  # initial the arm in the best pos
   arm_elements[Arm.ARM1.value].setPosition(0.0)
-  arm_elements[Arm.ARM2.value].setPosition(1.57)
-  arm_elements[Arm.ARM3.value].setPosition(-2.635)
-  arm_elements[Arm.ARM4.value].setPosition(1.78)
+  arm_elements[Arm.ARM2.value].setPosition(1.3)
+  arm_elements[Arm.ARM3.value].setPosition(-0.5)
+  arm_elements[Arm.ARM4.value].setPosition(-1.7)
   arm_elements[Arm.ARM5.value].setPosition(0.0)
 
 
@@ -218,7 +220,16 @@ def arm_decrease_orientation(current_orientation):
     current_orientation = 0
   arm_set_orientation(current_orientation)
 
+#----------------------grip the berries--------------------------------
 
+def grip_berries():
+    arm_elements[Arm.ARM2.value].setPosition(-1)
+    gripper_grip()
+    arm_elements[Arm.ARM1.value].setPosition(-1)
+    arm_elements[Arm.ARM1.value].setPosition(1)
+    print("here")
+    gripper_release()
+    arm_reset()
 
 
 #-------------------------------------------------------------------
@@ -229,19 +240,20 @@ def robot_reset(fr, fl, br, bl):
     br.setVelocity(0)
     bl.setVelocity(0)
 
-def turn_left(fr, fl, br, bl,  speed =  MAX_SPEED):
+def turn_left(fr, fl, br, bl,  speed =  8):
     print("turning left")
     fr.setVelocity(speed)
     fl.setVelocity(-speed)
     br.setVelocity(speed)
     bl.setVelocity(-speed)
+
     # fr.setPosition(speed)
     # fl.setPosition(-speed)
     # br.setPosition(speed)
     # bl.setPosition(-speed)
 
 
-def turn_right(fr, fl, br, bl, speed =  MAX_SPEED):
+def turn_right(fr, fl, br, bl, speed =  8):
     print("turning right")
     fr.setVelocity(-speed)
     fl.setVelocity(speed)
@@ -249,7 +261,7 @@ def turn_right(fr, fl, br, bl, speed =  MAX_SPEED):
     bl.setVelocity(speed)
 
 
-def go_straight(fr, fl, br, bl, speed =  MAX_SPEED):
+def go_straight(fr, fl, br, bl, speed =  8):
     print("go straight")
     fr.setVelocity(speed)
     fl.setVelocity(speed)
@@ -257,7 +269,9 @@ def go_straight(fr, fl, br, bl, speed =  MAX_SPEED):
     bl.setVelocity(speed)
 
 def go_back(fr, fl, br, bl, speed =  5.0):
-    print("go straight")
+    print("go back")
+    if speed > 14:
+        speed = MAX_SPEED
     fr.setVelocity(-speed)
     fl.setVelocity(-speed)
     br.setVelocity(-speed)
@@ -402,8 +416,8 @@ def zombie_berry_info(object_data, image, img_width, img_height):
             "possible berries":[], "possible zombies":[],  "wall": False}
 
     # print(object_data)
-    print("---------")
-    view = wall_test(view, object_data, image, img_width, img_height)
+    # print("---------")
+    # view = wall_test(view, object_data, image, img_width, img_height)
     # if (view["wall"] ==  True ):
     #     return view
     for i in range(len(object_data)):
@@ -443,10 +457,10 @@ def zombie_berry_info(object_data, image, img_width, img_height):
     view = helper_contour_add_dir(image, view, img_width, img_height)
     return view
 
-def wall_test(view, object_data, image, img_width, img_height):
+def wall_test(image, img_width, img_height):
     # if (object_data == []):
     g_x = int(img_width /2)
-    g_y = int(img_height * 6/10)
+    g_y = int(img_height * 5.8/10)
     R_g  = image[g_x][g_y][0]
     G_g  = image[g_x][g_y][1]
     B_g  = image[g_x][g_y][2]
@@ -454,8 +468,8 @@ def wall_test(view, object_data, image, img_width, img_height):
     color_wall = color_wall.lower()
     print("wall color", color_wall)
     if (color_wall == "wall"):
-        view["wall"] = True
-    return view
+        return True
+    return False
 
 # ---------------------------------------------------------------
 # ---------------------------GPS(stuck)---------------------------
@@ -463,9 +477,10 @@ def is_stuck(new_gps, old_gps, stuck_time):
     diffx = abs(new_gps[0] - old_gps[0])
     diffy = abs(new_gps[1] - old_gps[1])
     is_stuck = False
-    if (diffx < 0.002 and diffy < 0.002):
+    print("diff",diffx,diffy)
+    if (diffx < 0.001 and diffy < 0.001):
       if (stuck_time <= 1):
-        stuck_time += 1
+        stuck_time += 3
       else:
         is_stuck = True
     else:
@@ -574,7 +589,7 @@ def main():
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
     while(robot_not_dead == 1):
-        arm_increase_height(3)
+        
         if(robot_info[0] < 0):
             robot_not_dead = 0
             print("ROBOT IS OUT OF HEALTH")
@@ -608,7 +623,6 @@ def main():
          #called every timestep
         if i == 0:
            gripper_release()
-           arm_reset()
            robot_reset(fr, fl, br, bl)
            last_gps = []
            view_info = {}
@@ -621,18 +635,15 @@ def main():
            object_data_back = []
            stuck_time = 0
            stuck_flag = False
+           berry_stuck_tries = 0
+           flag = True
            last_gps = gps.getValues()
         if i % 3 == 0:
-            gripper_grip()
             image = camera3.getImageArray()
             if image:
                 data = np.array(image, dtype = np.uint8)
                 object_data = object_info(data, camera3.getHeight(), camera3.getWidth())
                 view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight() )
-
-
-        else:
-            gripper_release()
         if i % 3 == 0:
             imageR = camera6.getImageArray()
             if imageR:
@@ -779,18 +790,32 @@ def main():
         # -----------------------stuck-------------------------------
         now_gps = gps.getValues()
         stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
-        print(stuck_time, stuck_flag)
-        berry_stuck_tries = 0
-        if (stuck_flag):
+        print("stuck",stuck_time, stuck_flag)
+        wall = wall_test(image,  camera3.getWidth(), camera3.getHeight())
+        print("wall",wall)
+        if (wall):
+            turn_right(fr, fl, br, bl,14)
+        if ((i > 5 and stuck_flag) and wall != True):
+                
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
-                    go_straight(fr, fl, br, bl)
+                    print("berries")
+                    go_straight(fr, fl, br, bl, 3)
+                    grip_berries()
                     stuck_flag = False
                     berry_stuck_tries += 1
                     break
+            print("stuck",stuck_flag, berry_stuck_tries)
             if (stuck_flag or berry_stuck_tries > 2):
                 berry_stuck_tries = 0
-                turn_right(fr, fl, br, bl)
+                if flag:
+                    # speed += 2
+                    grip_berries()
+                    go_back(fr, fl, br, bl, 14)
+                    flag = not flag
+                else:
+                    turn_right(fr, fl, br, bl, 14)
+                    flag = not flag
 
         last_gps = gps.getValues()
 
