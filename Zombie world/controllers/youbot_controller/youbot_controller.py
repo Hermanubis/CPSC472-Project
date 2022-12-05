@@ -174,7 +174,7 @@ def arm_set_orientation(orientation):
 
 
 def arm_init(robot):
-  print(Arm.ARM1.value)
+#   print(Arm.ARM1.value)
   arm_elements[Arm.ARM1.value] = robot.getDevice("arm1")
   arm_elements[Arm.ARM2.value] = robot.getDevice("arm2")
   arm_elements[Arm.ARM3.value] = robot.getDevice("arm3")
@@ -225,7 +225,7 @@ def arm_decrease_orientation(current_orientation):
 def grip_berries():
     arm_elements[Arm.ARM2.value].setPosition(-0.3)
     gripper_grip()
-    print("here",arm_elements[Arm.ARM1.value].getPositionSensor().getValue())
+    # print("here",arm_elements[Arm.ARM1.value].getPositionSensor().getValue())
     grap_time = 3
     while grap_time:
         arm_elements[Arm.ARM1.value].setPosition(-1)
@@ -248,7 +248,7 @@ def robot_reset(fr, fl, br, bl):
     bl.setVelocity(0)
 
 def turn_left(fr, fl, br, bl,  speed =  10):
-    print("turning left")
+    # print("turning left")
     fr.setVelocity(speed)
     fl.setVelocity(-speed)
     br.setVelocity(speed)
@@ -261,7 +261,7 @@ def turn_left(fr, fl, br, bl,  speed =  10):
 
 
 def turn_right(fr, fl, br, bl, speed =  10):
-    print("turning right")
+    # print("turning right")
     fr.setVelocity(-speed)
     fl.setVelocity(speed)
     br.setVelocity(-speed)
@@ -269,14 +269,14 @@ def turn_right(fr, fl, br, bl, speed =  10):
 
 
 def go_straight(fr, fl, br, bl, speed =  10):
-    print("go straight")
+    # print("go straight")
     fr.setVelocity(speed)
     fl.setVelocity(speed)
     br.setVelocity(speed)
     bl.setVelocity(speed)
 
 def go_back(fr, fl, br, bl, speed =  8):
-    print("go back")
+    # print("go back")
     if speed > 14:
         speed = MAX_SPEED
     fr.setVelocity(-speed)
@@ -341,8 +341,8 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    img, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    print("Number of contours = {}".format(str(len(contours))))
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    # print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
         area = 0
@@ -473,7 +473,7 @@ def wall_test(image, img_width, img_height):
     B_g  = image[g_x][g_y][2]
     color_wall = getColorName(R_g,G_g,B_g)
     color_wall = color_wall.lower()
-    print("wall color", color_wall)
+    # print("wall color", color_wall)
     if (color_wall == "wall"):
         return True
     return False
@@ -484,7 +484,7 @@ def is_stuck(new_gps, old_gps, stuck_time):
     diffx = abs(new_gps[0] - old_gps[0])
     diffy = abs(new_gps[1] - old_gps[1])
     is_stuck = False
-    print("diff",diffx,diffy)
+    # print("diff",diffx,diffy)
     if (diffx < 0.001 and diffy < 0.001):
       if (stuck_time <= 1):
         stuck_time += 2
@@ -657,7 +657,7 @@ def main():
                 data = np.array(imageR, dtype = np.uint8)
                 object_data_right = object_info(data, camera6.getHeight(), camera6.getWidth())
                 view_info_right = zombie_berry_info(object_data_right, imageR, camera6.getWidth(), camera6.getHeight())
-                print("view info R", view_info_right)
+                # print("view info R", view_info_right)
 
         if i % 3 == 0:
             imageL = camera7.getImageArray()
@@ -666,7 +666,7 @@ def main():
                data = np.array(imageL, dtype = np.uint8)
                object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
                view_info_left = zombie_berry_info(object_data_left, imageL, camera7.getWidth(), camera7.getHeight())
-               print("view info L", view_info_left)
+            #    print("view info L", view_info_left)
 
         if i % 3 == 0:
             imageB = camera5.getImageArray()
@@ -674,8 +674,8 @@ def main():
                 data = np.array(imageB, dtype = np.uint8)
                 object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
-                print("view info B", view_info_back)
-        print(lastHealth,lastEnergy,"test robot infor and energy")
+                # print("view info B", view_info_back)
+        # print(lastHealth,lastEnergy,"test robot infor and energy")
         # if ((robot_info[1]-lastEnergy[-2])==-20):
         #     worstBerry = lastBerry
 
@@ -773,7 +773,7 @@ def main():
                             move = "left"
             go_straight(fr, fl, br, bl)
             if( not noZombie and maxZombie<110):
-                print("avoid", avoid)
+                # print("avoid", avoid)
                 if(front ==True and left == True and right == True):
                     go_straight(fr, fl, br, bl,14)
                 elif(avoid == "center"):
@@ -787,7 +787,7 @@ def main():
             if(robot_info[1]<25 or noZombie or(robot_info[1]<50 and maxZombie>110)):
                 # if(maxBerry>maxZombie):
                 #     print("chase berry first")
-                print("move", move)
+                # print("move", move)
                 if(move == "center"):
                     go_straight(fr, fl, br, bl)
                 elif (move == "right"):
@@ -797,22 +797,22 @@ def main():
         # -----------------------stuck-------------------------------
         now_gps = gps.getValues()
         stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
-        print("stuck",stuck_time, stuck_flag)
+        # print("stuck",stuck_time, stuck_flag)
         wall = wall_test(image,  camera3.getWidth(), camera3.getHeight())
-        print("wall",wall)
+        # print("wall",wall)
         if (wall):
             turn_right(fr, fl, br, bl,14)
 
-        if (((i % 8 == 0 or i % 9 == 0 or i % 10 == 0) and stuck_flag) and wall != True):
+        if  (stuck_flag and wall != True):
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
-                    print("berries")
-                    go_straight(fr, fl, br, bl, 3)
+                    # print("berries")
+                    go_straight(fr, fl, br, bl, 14)
                     # grip_berries()
                     stuck_flag = False
                     berry_stuck_tries += 1
                     break
-            print("stuck",stuck_flag, berry_stuck_tries)
+            # print("stuck",stuck_flag, berry_stuck_tries)
             if (stuck_flag or berry_stuck_tries > 2):
                 berry_stuck_tries = 0
                 if flag and stuck_flag:
@@ -841,7 +841,7 @@ def main():
         #if i==300
             # i = 0
         lastEnergy.append(int(robot_info[1]))
-        print(bestEnergyBerry,"best berry")
+        # print(bestEnergyBerry,"best berry")
         i+=1
 
         #make decisions using inputs if you choose to do so
