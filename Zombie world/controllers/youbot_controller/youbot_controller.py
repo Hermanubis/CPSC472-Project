@@ -59,7 +59,7 @@ def go_back(fr, fl, br, bl, speed =  5.0):
 BERRY_DISTANCE = 10 #unit in pixel
 ZOMBIE_DISTANCE = 30
 
-# -------------------image detection------------------------------------
+
 # return the name of the color based on the RGB value
 def getColorName(r,g,b):
     minimum = 1000
@@ -249,24 +249,6 @@ def wall_test(view, object_data, image, img_width, img_height):
         view["wall"] = True
     return view
 
-# ---------------------------------------------------------------
-# ---------------------------GPS(stuck)---------------------------
-def is_stuck(new_gps, old_gps, stuck_time):
-    diffx = abs(new_gps[0] - old_gps[0])
-    diffy = abs(new_gps[1] - old_gps[1])
-    is_stuck = False
-    if (diffx < 0.002 and diffy < 0.002):
-      if (stuck_time <= 1):
-        stuck_time += 1
-      else:
-        is_stuck = True
-    else:
-        stuck_time = 0
-    return [stuck_time, is_stuck]
-
-
-
-
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
 def main():
@@ -353,7 +335,10 @@ def main():
     i=0
     zombie_list = ['green','blue','aqua','purple']
     berry_list = ['red','yellow','orange','pink']
-    bestBerry = []
+    bestBerry = ''
+    bestBerryScore = 0
+    lastEnergy = 0
+    lastBerry = ''
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -386,13 +371,34 @@ def main():
         rightMotor.setPosition(float('inf'))
         leftMotor.setVelocity(0.0)
         rightMotor.setVelocity(0.0)
-        
+
         timer += 1
+        print(camera1.hasRecognition()," 1")
+        print(camera2.hasRecognition()," 2")
+        print(camera3.hasRecognition()," 3")
+        print(camera4.hasRecognition()," 4")
+        print(camera5.hasRecognition()," 5")
+        print(camera6.hasRecognition()," 6")
+        print(camera7.hasRecognition()," 7")
+        print(camera8.hasRecognition()," 8")
+        # object = camera1.getRecognitionObjects()
+
+        # if object:
+    # display the components of each pixel
+          # for x in range(0,camera1.getWidth()):
+             # for y in range(0,camera1.getHeight()):
+                # red   = image[x][y][0]
+                # green = image[x][y][1]
+                # blue  = image[x][y][2]
+                # gray  = (red + green + blue) / 3
+                # print('r='+str(red)+' g='+str(green)+' b='+str(blue))
+                # print(object)
+
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------
          #called every timestep
         if i == 0:
            robot_reset(fr, fl, br, bl)
-           last_gps = []
+
            view_info = {}
            view_info_left = {}
            view_info_right = {}
@@ -401,16 +407,12 @@ def main():
            object_data_left = []
            object_data_right = []
            object_data_back = []
-           stuck_time = 0
-           stuck_flag = False
-           last_gps = gps.getValues()
         if i % 3 == 0:
             image = camera3.getImageArray()
             if image:
                 data = np.array(image, dtype = np.uint8)
                 object_data = object_info(data, camera3.getHeight(), camera3.getWidth())
                 view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight(), )
-                print(object_data)
                 print("view info", view_info)
 
 
@@ -439,6 +441,11 @@ def main():
                 object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight(), )
                 print("view info B", view_info_back)
+
+        if (robot_info[1]>lastEnergy):
+            if(bestBerryScore<(robot_info[1]-lastEnergy)):
+                bestBerry = lastBerry
+                bestBerryScore = robot_info[1]-lastEnergy
 
 
         if(view_info["wall"] and view_info_left["wall"]):
@@ -501,6 +508,7 @@ def main():
                     for singleBerry in view_info[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = singleBerry[2]
                 # noBerriesR = True
             for berry in berry_list:
@@ -509,6 +517,7 @@ def main():
                     for singleBerry in view_info_right[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = "right"
             for berry in berry_list:
                 if(view_info_left[berry]):
@@ -516,6 +525,7 @@ def main():
                     for singleBerry in view_info_left[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = "left"
             go_straight(fr, fl, br, bl)
             print(maxZombie,"maxZombie")
@@ -544,13 +554,8 @@ def main():
                     turn_right(fr, fl, br, bl)
                 else:
                     turn_left(fr, fl, br, bl)
-        # -----------------------stuck-------------------------------
-        now_gps = gps.getValues()
-        stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
-        print(stuck_time, stuck_flag)
-        last_gps = gps.getValues()
-        # -----------------------stuck-------------------------------
-
+            lastEnergy = robot_info[1]
+            print(bestBerry)
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
             #base_forwards() -> can implement in Python with Webots C code (/Zombie world/libraries/youbot_control) as an example or make your own
