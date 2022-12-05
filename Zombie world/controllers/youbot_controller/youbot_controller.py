@@ -548,14 +548,18 @@ def main():
         now_gps = gps.getValues()
         stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
         print(stuck_time, stuck_flag)
+        berry_stuck_tries = 0
         if (stuck_flag):
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
                     go_straight(fr, fl, br, bl)
                     stuck_flag = False
-            stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
-            if (stuck_flag):
+                    berry_stuck_tries += 1
+                    break
+            if (stuck_flag or berry_stuck_tries > 2):
+                berry_stuck_tries = 0
                 turn_right(fr, fl, br, bl)
+            
         last_gps = gps.getValues()
 
         
