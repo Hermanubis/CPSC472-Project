@@ -64,7 +64,7 @@ def go_back(fr, fl, br, bl, speed =  5.0):
 BERRY_DISTANCE = 10 #unit in pixel
 ZOMBIE_DISTANCE = 30
 
-
+# -------------------image detection------------------------------------
 # return the name of the color based on the RGB value
 def getColorName(r,g,b):
     minimum = 1000
@@ -85,7 +85,7 @@ def getColorName(r,g,b):
     if  ((145 < r and r < 26) and (115 < g and g < 145) and (15 < b and b < 25)) or \
         ((43 < r and r < 65) and (15 < g and g < 30) and (90 < b and b < 130)) or \
         ((110 < r and r < 130) and (40 < g and g < 57) and (180 < b and b < 200)):
-        color_name = "purple"
+        color_name = "purple" 
     if  ((60 < r and r < 78) and (13 < g and g < 28) and (13 < b and b < 28)) or \
         ((190 < r and r < 225) and (53 < g and g < 66) and (37 < b and b < 49)):
         color_name = "red"
@@ -97,15 +97,15 @@ def getColorName(r,g,b):
         color_name = "yellow"
     if  ((188 < r and r < 200) and (117 < g and g < 129) and (77 < b and b < 89)) or \
         ((55 < r and r < 68) and (33 < g and g < 43) and (28 < b and b < 37)) :
-        color_name = "orange"
+        color_name = "orange" 
     if  ((r > 50 and g-5 < r and r < g+5) and (g > b-15)) or \
         ((60 < r and r < 70) and (60 < g and g < 70) and (60 < b and b < 70)) or \
         ((65 < r and r < 75) and (70 < g and g < 80) and (90 < b and b < 100)) or \
         ((203 < r and r < 220) and (203 < g and g < 220) and (203 < b and b < 220)):
-        color_name = "wall"
+        color_name = "wall" 
     if  ((5 < r and r < 15) and (5 < g and g < 15) and (8 < b and b < 19)) or \
         ((20 < r and r < 35) and (20 < g and g < 35) and (20 < b and b < 35)):
-        color_name = "dark"
+        color_name = "dark"    
     # for i in range(len(csv)):
     #     d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
     #     if(d<minimum):
@@ -117,7 +117,7 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
@@ -198,7 +198,7 @@ def zombie_berry_info(object_data, image, img_width, img_height):
             "green": [], "blue": [], "aqua": [], "purple": [],
             "possible berries":[], "possible zombies":[],  "wall": False}
 
-    # print(object_data)
+    # print(object_data) 
     print("---------")
     view = wall_test(view, object_data, image, img_width, img_height)
     # if (view["wall"] ==  True ):
@@ -208,8 +208,8 @@ def zombie_berry_info(object_data, image, img_width, img_height):
         x,y = object_data[i][0]
         # print(image[x][y][0],image[x][y][1],image[x][y][2])
         # color = getColorName(image[x][y][0],image[x][y][1],image[x][y][2])
-        # print(color)
-
+        # print(color)     
+          
         for cx in range(x - 2 , x + 1):
             if color_flag: break
             for cy in range(y - 2, y + 1):
@@ -253,6 +253,24 @@ def wall_test(view, object_data, image, img_width, img_height):
     if (color_wall == "wall"):
         view["wall"] = True
     return view
+
+# ---------------------------------------------------------------
+# ---------------------------GPS(stuck)---------------------------
+def is_stuck(new_gps, old_gps, stuck_time):
+    diffx = abs(new_gps[0] - old_gps[0])
+    diffy = abs(new_gps[1] - old_gps[1])
+    is_stuck = False
+    if (diffx < 0.002 and diffy < 0.002):
+      if (stuck_time <= 1):
+        stuck_time += 1
+      else:
+        is_stuck = True
+    else:
+        stuck_time = 0
+    return [stuck_time, is_stuck]
+
+
+
 
 #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -340,10 +358,7 @@ def main():
     i=0
     zombie_list = ['green','blue','aqua','purple']
     berry_list = ['red','yellow','orange','pink']
-    bestBerry = ''
-    bestBerryScore = 0
-    lastEnergy = 0
-    lastBerry = ''
+
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -376,34 +391,13 @@ def main():
         rightMotor.setPosition(float('inf'))
         leftMotor.setVelocity(0.0)
         rightMotor.setVelocity(0.0)
-
+        
         timer += 1
-        print(camera1.hasRecognition()," 1")
-        print(camera2.hasRecognition()," 2")
-        print(camera3.hasRecognition()," 3")
-        print(camera4.hasRecognition()," 4")
-        print(camera5.hasRecognition()," 5")
-        print(camera6.hasRecognition()," 6")
-        print(camera7.hasRecognition()," 7")
-        print(camera8.hasRecognition()," 8")
-        # object = camera1.getRecognitionObjects()
-
-        # if object:
-    # display the components of each pixel
-          # for x in range(0,camera1.getWidth()):
-             # for y in range(0,camera1.getHeight()):
-                # red   = image[x][y][0]
-                # green = image[x][y][1]
-                # blue  = image[x][y][2]
-                # gray  = (red + green + blue) / 3
-                # print('r='+str(red)+' g='+str(green)+' b='+str(blue))
-                # print(object)
-
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------
          #called every timestep
         if i == 0:
            robot_reset(fr, fl, br, bl)
-
+           last_gps = []
            view_info = {}
            view_info_left = {}
            view_info_right = {}
@@ -412,6 +406,9 @@ def main():
            object_data_left = []
            object_data_right = []
            object_data_back = []
+           stuck_time = 0
+           stuck_flag = False
+           last_gps = gps.getValues()
         if i % 3 == 0:
             image = camera3.getImageArray()
             if image:
@@ -431,7 +428,7 @@ def main():
 
         if i % 3 == 0:
             imageL = camera7.getImageArray()
-
+            
             if imageL:
                data = np.array(imageL, dtype = np.uint8)
                object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
@@ -445,11 +442,6 @@ def main():
                 object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
                 print("view info B", view_info_back)
-
-        if (robot_info[1]>lastEnergy):
-            if(bestBerryScore<(robot_info[1]-lastEnergy)):
-                bestBerry = lastBerry
-                bestBerryScore = robot_info[1]-lastEnergy
 
 
         if(view_info["wall"] and view_info_left["wall"]):
@@ -487,7 +479,7 @@ def main():
                             maxZombie = singleZombie[1]
                             avoid = "left"
                             left = True
-
+                            
             for zombie in zombie_list:
                 if(view_info_right[zombie]):
                     noZombie = False
@@ -512,7 +504,6 @@ def main():
                     for singleBerry in view_info[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
-                            lastBerry = berry
                             move = singleBerry[2]
                 # noBerriesR = True
             for berry in berry_list:
@@ -521,7 +512,6 @@ def main():
                     for singleBerry in view_info_right[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
-                            lastBerry = berry
                             move = "right"
             for berry in berry_list:
                 if(view_info_left[berry]):
@@ -529,14 +519,10 @@ def main():
                     for singleBerry in view_info_left[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
-                            lastBerry = berry
                             move = "left"
-            go_straight(fr, fl, br, bl)
             print(maxZombie,"maxZombie")
-
-
             print(maxBerry,"maxBerry")
-            if( not noZombie and maxZombie<110):
+            if(not noZombie):
                 print("avoid", avoid)
                 if(front ==True and left == True and right == True):
                     go_straight(fr, fl, br, bl)
@@ -548,9 +534,9 @@ def main():
                     go_straight(fr, fl, br, bl)
                 else:
                     turn_right(fr, fl, br, bl)
-            if(robot_info[1]<25 or noZombie or(robot_info[1]<50 and maxZombie>110)):
-                # if(maxBerry>maxZombie):
-                #     print("chase berry first")
+            if(noZombie or maxBerry>maxZombie or maxZombie<100):
+                if(maxBerry>maxZombie):
+                    print("chase berry first")
                 print("move", move)
                 if(move == "center"):
                     go_straight(fr, fl, br, bl)
@@ -558,8 +544,6 @@ def main():
                     turn_right(fr, fl, br, bl)
                 else:
                     turn_left(fr, fl, br, bl)
-            lastEnergy = robot_info[1]
-            print(bestBerry)
         # -----------------------stuck-------------------------------
         now_gps = gps.getValues()
         stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
@@ -569,12 +553,12 @@ def main():
                 if view_info[berry] or view_info["possible berries"]:
                     go_straight(fr, fl, br, bl)
                     stuck_flag = False
-
+            stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
             if (stuck_flag):
                 turn_right(fr, fl, br, bl)
         last_gps = gps.getValues()
 
-
+        
         # -----------------------stuck-------------------------------
 
         #possible pseudocode for moving forward, then doing a 90 degree left turn
