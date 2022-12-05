@@ -85,7 +85,7 @@ def getColorName(r,g,b):
     if  ((145 < r and r < 26) and (115 < g and g < 145) and (15 < b and b < 25)) or \
         ((43 < r and r < 65) and (15 < g and g < 30) and (90 < b and b < 130)) or \
         ((110 < r and r < 130) and (40 < g and g < 57) and (180 < b and b < 200)):
-        color_name = "purple" 
+        color_name = "purple"
     if  ((60 < r and r < 78) and (13 < g and g < 28) and (13 < b and b < 28)) or \
         ((190 < r and r < 225) and (53 < g and g < 66) and (37 < b and b < 49)):
         color_name = "red"
@@ -97,15 +97,15 @@ def getColorName(r,g,b):
         color_name = "yellow"
     if  ((188 < r and r < 200) and (117 < g and g < 129) and (77 < b and b < 89)) or \
         ((55 < r and r < 68) and (33 < g and g < 43) and (28 < b and b < 37)) :
-        color_name = "orange" 
+        color_name = "orange"
     if  ((r > 50 and g-5 < r and r < g+5) and (g > b-15)) or \
         ((60 < r and r < 70) and (60 < g and g < 70) and (60 < b and b < 70)) or \
         ((65 < r and r < 75) and (70 < g and g < 80) and (90 < b and b < 100)) or \
         ((203 < r and r < 220) and (203 < g and g < 220) and (203 < b and b < 220)):
-        color_name = "wall" 
+        color_name = "wall"
     if  ((5 < r and r < 15) and (5 < g and g < 15) and (8 < b and b < 19)) or \
         ((20 < r and r < 35) and (20 < g and g < 35) and (20 < b and b < 35)):
-        color_name = "dark"    
+        color_name = "dark"
     # for i in range(len(csv)):
     #     d = abs(R- int(csv.loc[i,"R"])) + abs(G- int(csv.loc[i,"G"]))+ abs(B- int(csv.loc[i,"B"]))
     #     if(d<minimum):
@@ -117,7 +117,7 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
@@ -198,7 +198,7 @@ def zombie_berry_info(object_data, image, img_width, img_height):
             "green": [], "blue": [], "aqua": [], "purple": [],
             "possible berries":[], "possible zombies":[],  "wall": False}
 
-    # print(object_data) 
+    # print(object_data)
     print("---------")
     view = wall_test(view, object_data, image, img_width, img_height)
     # if (view["wall"] ==  True ):
@@ -208,8 +208,8 @@ def zombie_berry_info(object_data, image, img_width, img_height):
         x,y = object_data[i][0]
         # print(image[x][y][0],image[x][y][1],image[x][y][2])
         # color = getColorName(image[x][y][0],image[x][y][1],image[x][y][2])
-        # print(color)     
-          
+        # print(color)
+
         for cx in range(x - 2 , x + 1):
             if color_flag: break
             for cy in range(y - 2, y + 1):
@@ -358,7 +358,10 @@ def main():
     i=0
     zombie_list = ['green','blue','aqua','purple']
     berry_list = ['red','yellow','orange','pink']
-
+    bestBerry = ''
+    bestBerryScore = 0
+    lastEnergy = 0
+    lastBerry = ''
 
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
@@ -391,7 +394,7 @@ def main():
         rightMotor.setPosition(float('inf'))
         leftMotor.setVelocity(0.0)
         rightMotor.setVelocity(0.0)
-        
+
         timer += 1
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------
          #called every timestep
@@ -428,7 +431,7 @@ def main():
 
         if i % 3 == 0:
             imageL = camera7.getImageArray()
-            
+
             if imageL:
                data = np.array(imageL, dtype = np.uint8)
                object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
@@ -443,6 +446,10 @@ def main():
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
                 print("view info B", view_info_back)
 
+        if (robot_info[1]>lastEnergy):
+            if(bestBerryScore<(robot_info[1]-lastEnergy)):
+                bestBerry = lastBerry
+                bestBerryScore = robot_info[1]-lastEnergy
 
         if(view_info["wall"] and view_info_left["wall"]):
             turn_right(fr, fl, br, bl)
@@ -479,7 +486,7 @@ def main():
                             maxZombie = singleZombie[1]
                             avoid = "left"
                             left = True
-                            
+
             for zombie in zombie_list:
                 if(view_info_right[zombie]):
                     noZombie = False
@@ -504,6 +511,7 @@ def main():
                     for singleBerry in view_info[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = singleBerry[2]
                 # noBerriesR = True
             for berry in berry_list:
@@ -512,6 +520,7 @@ def main():
                     for singleBerry in view_info_right[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = "right"
             for berry in berry_list:
                 if(view_info_left[berry]):
@@ -519,6 +528,7 @@ def main():
                     for singleBerry in view_info_left[berry]:
                         if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
                             maxBerry = singleBerry[1]
+                            lastBerry = berry
                             move = "left"
             print(maxZombie,"maxZombie")
             print(maxBerry,"maxBerry")
@@ -557,8 +567,9 @@ def main():
             if (stuck_flag):
                 turn_right(fr, fl, br, bl)
         last_gps = gps.getValues()
+        lastEnergy = robot_info[1]
+        print(bestBerry,"best berry")
 
-        
         # -----------------------stuck-------------------------------
 
         #possible pseudocode for moving forward, then doing a 90 degree left turn
