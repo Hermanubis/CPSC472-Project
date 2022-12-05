@@ -223,11 +223,18 @@ def arm_decrease_orientation(current_orientation):
 #----------------------grip the berries--------------------------------
 
 def grip_berries():
-    arm_elements[Arm.ARM2.value].setPosition(-1)
+    arm_elements[Arm.ARM2.value].setPosition(-0.3)
     gripper_grip()
-    arm_elements[Arm.ARM1.value].setPosition(-1)
-    arm_elements[Arm.ARM1.value].setPosition(1)
-    print("here")
+    print("here",arm_elements[Arm.ARM1.value].getPositionSensor().getValue())
+    grap_time = 3
+    while grap_time:
+        arm_elements[Arm.ARM1.value].setPosition(-1)
+        grap_time -= 1
+    grap_time = 3
+    while grap_time:
+        arm_elements[Arm.ARM1.value].setPosition(1)
+        grap_time -= 1
+    
     gripper_release()
     arm_reset()
 
@@ -480,7 +487,7 @@ def is_stuck(new_gps, old_gps, stuck_time):
     print("diff",diffx,diffy)
     if (diffx < 0.001 and diffy < 0.001):
       if (stuck_time <= 1):
-        stuck_time += 3
+        stuck_time += 2
       else:
         is_stuck = True
     else:
@@ -795,13 +802,13 @@ def main():
         print("wall",wall)
         if (wall):
             turn_right(fr, fl, br, bl,14)
-        if ((i > 5 and stuck_flag) and wall != True):
+        if ((i > 10 and stuck_flag) and wall != True):
                 
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
                     print("berries")
                     go_straight(fr, fl, br, bl, 3)
-                    grip_berries()
+                    # grip_berries()
                     stuck_flag = False
                     berry_stuck_tries += 1
                     break
