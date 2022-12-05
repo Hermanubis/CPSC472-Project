@@ -358,11 +358,14 @@ def main():
     i=0
     zombie_list = ['green','blue','aqua','purple']
     berry_list = ['red','yellow','orange','pink']
-    bestBerry = ''
-    bestBerryScore = 0
-    lastEnergy = 0
+    bestHealthBerry = ''
+    bestHealthBerry=0
+    bestEnergyBerry = ''
+    bestBerryEnergy = 0
+    lastHealth = [100]
+    lastEnergy = [100]
     lastBerry = ''
-
+    worstBerry=''
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
     while(robot_not_dead == 1):
@@ -445,11 +448,22 @@ def main():
                 object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
                 print("view info B", view_info_back)
+        print(lastHealth,lastEnergy,"test robot infor and energy")
+        if ((robot_info[1]-lastEnergy[-2])==-20):
+            worstBerry = lastBerry
 
-        if (robot_info[1]>lastEnergy):
-            if(bestBerryScore<(robot_info[1]-lastEnergy)):
-                bestBerry = lastBerry
-                bestBerryScore = robot_info[1]-lastEnergy
+        if(len(lastHealth)>2 and (robot_info[1]-lastHealth[-2]) == 20 ):
+
+            if(bestBerryEnergy<(robot_info[1]-lastHealth[-2])):
+                print(bestBerryEnergy,"best Health berry")
+                bestHealthBerry = lastBerry
+
+        if(len(lastEnergy)>2 and (robot_info[1]-lastEnergy[-2])==40 ):
+
+            if(bestBerryEnergy<(robot_info[1]-lastEnergy[-2])):
+                print(bestBerryEnergy,"best berry score")
+                bestEnergyBerry = lastBerry
+                bestBerryEnergy = robot_info[1]-lastEnergy[-2]
 
         if(view_info["wall"] and view_info_left["wall"]):
             turn_right(fr, fl, br, bl)
@@ -509,7 +523,7 @@ def main():
                 if(view_info[berry]):
                     # noBerries = False
                     for singleBerry in view_info[berry]:
-                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry):
+                        if(len(singleBerry)>2 and singleBerry[1] > maxBerry ):
                             maxBerry = singleBerry[1]
                             lastBerry = berry
                             move = singleBerry[2]
@@ -530,9 +544,8 @@ def main():
                             maxBerry = singleBerry[1]
                             lastBerry = berry
                             move = "left"
-            print(maxZombie,"maxZombie")
-            print(maxBerry,"maxBerry")
-            if(not noZombie):
+            go_straight(fr, fl, br, bl)
+            if( not noZombie and maxZombie<110):
                 print("avoid", avoid)
                 if(front ==True and left == True and right == True):
                     go_straight(fr, fl, br, bl)
@@ -544,9 +557,9 @@ def main():
                     go_straight(fr, fl, br, bl)
                 else:
                     turn_right(fr, fl, br, bl)
-            if(noZombie or maxBerry>maxZombie or maxZombie<100):
-                if(maxBerry>maxZombie):
-                    print("chase berry first")
+            if(robot_info[1]<25 or noZombie or(robot_info[1]<50 and maxZombie>110)):
+                # if(maxBerry>maxZombie):
+                #     print("chase berry first")
                 print("move", move)
                 if(move == "center"):
                     go_straight(fr, fl, br, bl)
@@ -569,10 +582,9 @@ def main():
             if (stuck_flag or berry_stuck_tries > 2):
                 berry_stuck_tries = 0
                 turn_right(fr, fl, br, bl)
-            
+
         last_gps = gps.getValues()
-        lastEnergy = robot_info[1]
-        print(bestBerry,"best berry")
+
 
         # -----------------------stuck-------------------------------
 
@@ -587,7 +599,8 @@ def main():
 
         #if i==300
             # i = 0
-
+        lastEnergy.append(int(robot_info[1]))
+        print(bestEnergyBerry,"best berry")
         i+=1
 
         #make decisions using inputs if you choose to do so
