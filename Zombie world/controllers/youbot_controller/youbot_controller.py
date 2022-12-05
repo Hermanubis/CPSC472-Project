@@ -486,7 +486,7 @@ def is_stuck(new_gps, old_gps, stuck_time):
     diffy = abs(new_gps[1] - old_gps[1])
     is_stuck = False
     if (diffx < 0.002 and diffy < 0.002):
-      if (stuck_time <= 2):
+      if (stuck_time <= 6):
         stuck_time += 1
       else:
         is_stuck = True
@@ -634,6 +634,7 @@ def main():
            stuck_time = 0
            stuck_flag = False
            last_gps = gps.getValues()
+           turn_history = "straight"
         if i % 3 == 0:
             image = camera3.getImageArray()
     
@@ -672,8 +673,10 @@ def main():
         print("wall", wall_front)
         if(wall_front and wall_l):
             turn_right(fr, fl, br, bl)
+            turn_history = "right"
         if(wall_front and wall_r):
             turn_left(fr, fl, br, bl)
+            turn_history = "left"
         # if(view_info["boundary"] and view_info_left["boundary"]):
         #     turn_right(fr, fl, br, bl)
         # if(view_info["boundary"] and view_info_right["boundary"]):
@@ -682,6 +685,7 @@ def main():
         #     turn_right(fr, fl, br, bl)
         if(wall_front):
             turn_right(fr, fl, br, bl)
+            turn_history = "right"
         else:
             maxZombie = 0
             avoid = "center"
@@ -751,37 +755,53 @@ def main():
             if(not noZombie):
                 print("avoid", avoid)
                 if(front ==True and left == True and right == True):
+                    turn_history = "straight"
                     go_straight(fr, fl, br, bl,14)
                 elif(avoid == "center"):
                     turn_right(fr, fl, br, bl,14)
+                    turn_history = "right"
                 elif (avoid == "right"):
                     turn_left(fr, fl, br, bl,14)
+                    turn_history = "left"
                 elif(avoid == "straight"):
                     go_straight(fr, fl, br, bl,14)
+                    turn_history = "straight"
                 else:
                     turn_right(fr, fl, br, bl,14)
+                    turn_history = "right"
+            print('-----')
             if(noZombie or maxBerry>maxZombie or maxZombie<100):
                 if(maxBerry>maxZombie):
                     print("chase berry first")
                 print("move", move)
                 if(move == "center"):
                     go_straight(fr, fl, br, bl)
+                    turn_history = "straight"
                 elif (move == "right"):
                     turn_right(fr, fl, br, bl)
+                    turn_history = "right"
                 else:
                     turn_left(fr, fl, br, bl)
+                    turn_history = "left"
         # -----------------------stuck-------------------------------
         now_gps = gps.getValues()
-        stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
-        print(stuck_time, stuck_flag)
-        if (stuck_flag):
+        if (i > 3 and i % 3 != 0):
+            stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
+            print(stuck_time, stuck_flag)
+        if (i > 3 and i % 3 != 0 and stuck_flag):
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
-                    go_straight(fr, fl, br, bl)
+                    go_straight(fr, fl, br, bl,7)
                     stuck_flag = False
                 
             if (stuck_flag):
-                turn_right(fr, fl, br, bl)
+                
+                # if turn_history == "right":
+                    turn_right(fr, fl, br, bl,14)
+                # else:
+                #     if turn_history == "straight":
+                        # go_back(fr, fl, br, bl,14)
+                    # turn_left(fr, fl, br, bl,14)
         last_gps = gps.getValues()
 
         
