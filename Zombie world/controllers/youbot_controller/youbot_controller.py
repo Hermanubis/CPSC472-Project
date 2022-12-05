@@ -20,6 +20,209 @@ import pandas as pd
 import numpy as np
 import copy
 
+#---------------------------Gripper---------------------------------------
+LEFT = 0
+RIGHT = 1
+
+MIN_POS = 0.0
+MAX_POS = 0.025
+OFFSET_WHEN_LOCKED = 0.021
+fingers = {}
+
+def bound(v, a, b):
+    if v > b:
+        return b
+    else:
+        if v < a:
+            return a
+        else:
+            return v
+
+def gripper_init(robot):
+    fingers[LEFT] = robot.getDevice("finger1")
+    fingers[RIGHT] = robot.getDevice("finger2")
+
+    fingers[LEFT].setVelocity(0.03)
+    fingers[RIGHT].setVelocity(0.03)
+
+def gripper_grip():
+    fingers[LEFT].setPosition(MIN_POS)
+    fingers[RIGHT].setPosition(MIN_POS)
+
+def gripper_release():
+    fingers[LEFT].setPosition(MAX_POS)
+    fingers[RIGHT].setPosition(MAX_POS)
+
+
+def gripper_set_gap(gap):
+  v = bound(0.5 * (gap - OFFSET_WHEN_LOCKED), MIN_POS, MAX_POS)
+  fingers[LEFT].setPosition(v)
+  fingers[RIGHT].setPositionn(v)
+
+# -------------------------------------ARM---------------------------
+arm_elements = {}
+from enum import Enum
+
+class Height(Enum):
+  ARM_FRONT_FLOOR = 0
+  ARM_FRONT_PLATE = 1
+  ARM_HANOI_PREPARE = 2
+  ARM_FRONT_CARDBOARD_BOX = 3
+  ARM_RESET = 4
+  ARM_BACK_PLATE_HIGH = 5
+  ARM_BACK_PLATE_LOW = 6
+  ARM_MAX_HEIGHT = 7
+
+class Orientation(Enum):
+  ARM_BACK_LEFT = 0
+  ARM_LEFT = 1
+  ARM_FRONT_LEFT = 2
+  ARM_FRONT = 3
+  ARM_FRONT_RIGHT = 4
+  ARM_RIGHT = 5
+  ARM_BACK_RIGHT = 6
+  ARM_MAX_SIDE = 7
+
+class Arm(Enum):
+  ARM1 = 0
+  ARM2 = 1
+  ARM3 = 2
+  ARM4 = 3
+  ARM5 = 4
+
+
+current_height = Height.ARM_RESET.value
+current_orientation = Orientation.ARM_FRONT.value
+
+def arm_set_height(height):
+    if height == Height.ARM_FRONT_FLOOR.value:
+        arm_elements[Arm.ARM2.value].setPosition(-0.97)
+        arm_elements[Arm.ARM3.value].setPosition(-1.55)
+        arm_elements[Arm.ARM4.value].setPosition(-0.61)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+    elif height == Height.ARM_FRONT_PLATE.value:
+        arm_elements[Arm.ARM2.value].setPosition(-0.62)
+        arm_elements[Arm.ARM3.value].setPosition(-0.98)
+        arm_elements[Arm.ARM4.value].setPosition(-1.53)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+    elif height == Height.ARM_FRONT_CARDBOARD_BOX.value:
+        arm_elements[Arm.ARM2.value].setPosition(0.0)
+        arm_elements[Arm.ARM3.value].setPosition(-0.77)
+        arm_elements[Arm.ARM4.value].setPosition(-1.21)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+    elif height == Height.ARM_RESET.value:
+        arm_elements[Arm.ARM2.value].setPosition(1.57)
+        arm_elements[Arm.ARM3.value].setPosition(-2.635)
+        arm_elements[Arm.ARM4.value].setPosition(1.78)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+
+    elif height == Height.ARM_BACK_PLATE_HIGH.value:
+        arm_elements[Arm.ARM2.value].setPosition(0.678)
+        arm_elements[Arm.ARM3.value].setPosition(0.682)
+        arm_elements[Arm.ARM4.value].setPosition(1.74)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+
+    elif height == Height.ARM_BACK_PLATE_LOW.value:
+        arm_elements[Arm.ARM2.value].setPosition(0.92)
+        arm_elements[Arm.ARM3.value].setPosition(0.42)
+        arm_elements[Arm.ARM4.value].setPosition(1.78)
+        arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+
+    elif height == Height.ARM_HANOI_PREPARE.value:
+        arm_elements[Arm.ARM2.value].setPosition(-0.4)
+        arm_elements[Arm.ARM3.value].setPosition(-1.2)
+        arm_elements[Arm.ARM4.value].setPosition(-1.57)
+        arm_elements[Arm.ARM5.value].setPosition(1.57)
+
+
+    else:
+      print("arm_height() called with a wrong argument")
+
+    current_height = height
+    return current_height
+
+def arm_set_orientation(orientation):
+
+    if orientation == Orientation.ARM_BACK_LEFT.value:
+        arm_elements[Arm.ARM1.value].setPosition(-2.949)
+
+    elif orientation == Orientation.ARM_LEFT.value:
+        arm_elements[Arm.ARM1.value].setPosition(-1.57)
+    elif orientation == Orientation.ARM_FRONT_LEFT.value:
+        arm_elements[Arm.ARM1.value].setPosition(-0.2)
+    elif orientation == Orientation.ARM_FRONT.value:
+        arm_elements[Arm.ARM1.value].setPosition(0.0)
+    elif orientation == Orientation.ARM_FRONT_RIGHT.value:
+        arm_elements[Arm.ARM1.value].setPosition(0.2)
+    elif orientation == Orientation.ARM_RIGHT.value:
+        arm_elements[Arm.ARM1.value].setPosition(1.57)
+    elif orientation == Orientation.ARM_BACK_RIGHT.value:
+        arm_elements[Arm.ARM1.value].setPosition(2.949)
+    else:
+      print("arm_set_side() called with a wrong argument")
+
+    current_orientation = orientation
+    return current_orientation
+
+
+
+
+def arm_init(robot):
+  print(Arm.ARM1.value)
+  arm_elements[Arm.ARM1.value] = robot.getDevice("arm1")
+  arm_elements[Arm.ARM2.value] = robot.getDevice("arm2")
+  arm_elements[Arm.ARM3.value] = robot.getDevice("arm3")
+  arm_elements[Arm.ARM4.value] = robot.getDevice("arm4")
+  arm_elements[Arm.ARM5.value] = robot.getDevice("arm5")
+
+  arm_elements[Arm.ARM2.value].setVelocity(0.5)
+
+  arm_set_height(Height.ARM_RESET.value)
+  arm_set_orientation(Orientation.ARM_FRONT.value)
+
+def arm_reset():
+  arm_elements[Arm.ARM1.value].setPosition(0.0)
+  arm_elements[Arm.ARM2.value].setPosition(1.57)
+  arm_elements[Arm.ARM3.value].setPosition(-2.635)
+  arm_elements[Arm.ARM4.value].setPosition(1.78)
+  arm_elements[Arm.ARM5.value].setPosition(0.0)
+
+
+def arm_increase_height(current_height):
+  current_height += 1
+  if current_height >= Height.ARM_MAX_HEIGHT.value:
+    current_height = Height.ARM_MAX_HEIGHT.value - 1
+  arm_set_height(current_height)
+
+def arm_decrease_height(current_height):
+  current_height -= 1
+  if int(current_height) < 0:
+    current_height = 0
+  arm_set_height(current_height)
+
+def arm_increase_orientation(current_orientation):
+  current_orientation += 1
+  if (current_orientation >= Height.ARM_MAX_SIDE.value):
+    current_orientation = Height.ARM_MAX_SIDE.value - 1
+  arm_set_orientation(current_orientation)
+
+def arm_decrease_orientation(current_orientation):
+  current_orientation -= 1
+  if (int(current_orientation) < 0):
+    current_orientation = 0
+  arm_set_orientation(current_orientation)
+
+
+
+
+#-------------------------------------------------------------------
+
 def robot_reset(fr, fl, br, bl):
     fr.setVelocity(0)
     fl.setVelocity(0)
@@ -117,7 +320,7 @@ def object_info(img, img_width, img_height):
     object_data = [] #center point, area
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(imgray, 50, 255, 0)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    img, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     print("Number of contours = {}".format(str(len(contours))))
     for i in contours:
         M = cv2.moments(i)
@@ -353,8 +556,10 @@ def main():
     fl.setPosition(float('inf'))
     br.setPosition(float('inf'))
     bl.setPosition(float('inf'))
-
-
+    
+    #------------------------------GRIPPER---------------------------------
+    gripper_init(robot)
+    arm_init(robot)
     i=0
     zombie_list = ['green','blue','aqua','purple']
     berry_list = ['red','yellow','orange','pink']
@@ -369,8 +574,8 @@ def main():
     #------------------CHANGE CODE ABOVE HERE ONLY--------------------------
 
     while(robot_not_dead == 1):
+        arm_increase_height(3)
         if(robot_info[0] < 0):
-
             robot_not_dead = 0
             print("ROBOT IS OUT OF HEALTH")
             #if(zombieTest):
@@ -402,6 +607,8 @@ def main():
      #------------------CHANGE CODE BELOW HERE ONLY--------------------------
          #called every timestep
         if i == 0:
+           gripper_release()
+           arm_reset()
            robot_reset(fr, fl, br, bl)
            last_gps = []
            view_info = {}
@@ -416,6 +623,7 @@ def main():
            stuck_flag = False
            last_gps = gps.getValues()
         if i % 3 == 0:
+            gripper_grip()
             image = camera3.getImageArray()
             if image:
                 data = np.array(image, dtype = np.uint8)
@@ -423,7 +631,8 @@ def main():
                 view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight() )
 
 
-
+        else:
+            gripper_release()
         if i % 3 == 0:
             imageR = camera6.getImageArray()
             if imageR:
@@ -449,21 +658,21 @@ def main():
                 view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
                 print("view info B", view_info_back)
         print(lastHealth,lastEnergy,"test robot infor and energy")
-        if ((robot_info[1]-lastEnergy[-2])==-20):
-            worstBerry = lastBerry
+        # if ((robot_info[1]-lastEnergy[-2])==-20):
+        #     worstBerry = lastBerry
 
-        if(len(lastHealth)>2 and (robot_info[1]-lastHealth[-2]) == 20 ):
+        # if(len(lastHealth)>2 and (robot_info[1]-lastHealth[-2]) == 20 ):
 
-            if(bestBerryEnergy<(robot_info[1]-lastHealth[-2])):
-                print(bestBerryEnergy,"best Health berry")
-                bestHealthBerry = lastBerry
+        #     if(bestBerryEnergy<(robot_info[1]-lastHealth[-2])):
+        #         print(bestBerryEnergy,"best Health berry")
+        #         bestHealthBerry = lastBerry
 
-        if(len(lastEnergy)>2 and (robot_info[1]-lastEnergy[-2])==40 ):
+        # if(len(lastEnergy)>2 and (robot_info[1]-lastEnergy[-2])==40 ):
 
-            if(bestBerryEnergy<(robot_info[1]-lastEnergy[-2])):
-                print(bestBerryEnergy,"best berry score")
-                bestEnergyBerry = lastBerry
-                bestBerryEnergy = robot_info[1]-lastEnergy[-2]
+        #     if(bestBerryEnergy<(robot_info[1]-lastEnergy[-2])):
+        #         print(bestBerryEnergy,"best berry score")
+        #         bestEnergyBerry = lastBerry
+        #         bestBerryEnergy = robot_info[1]-lastEnergy[-2]
 
         if(view_info["wall"] and view_info_left["wall"]):
             turn_right(fr, fl, br, bl)
