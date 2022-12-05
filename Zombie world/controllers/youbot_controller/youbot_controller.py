@@ -247,7 +247,7 @@ def robot_reset(fr, fl, br, bl):
     br.setVelocity(0)
     bl.setVelocity(0)
 
-def turn_left(fr, fl, br, bl,  speed =  8):
+def turn_left(fr, fl, br, bl,  speed =  10):
     print("turning left")
     fr.setVelocity(speed)
     fl.setVelocity(-speed)
@@ -260,7 +260,7 @@ def turn_left(fr, fl, br, bl,  speed =  8):
     # bl.setPosition(-speed)
 
 
-def turn_right(fr, fl, br, bl, speed =  8):
+def turn_right(fr, fl, br, bl, speed =  10):
     print("turning right")
     fr.setVelocity(-speed)
     fl.setVelocity(speed)
@@ -268,14 +268,14 @@ def turn_right(fr, fl, br, bl, speed =  8):
     bl.setVelocity(speed)
 
 
-def go_straight(fr, fl, br, bl, speed =  8):
+def go_straight(fr, fl, br, bl, speed =  10):
     print("go straight")
     fr.setVelocity(speed)
     fl.setVelocity(speed)
     br.setVelocity(speed)
     bl.setVelocity(speed)
 
-def go_back(fr, fl, br, bl, speed =  5.0):
+def go_back(fr, fl, br, bl, speed =  8):
     print("go back")
     if speed > 14:
         speed = MAX_SPEED
@@ -802,8 +802,8 @@ def main():
         print("wall",wall)
         if (wall):
             turn_right(fr, fl, br, bl,14)
-        if ((i > 10 and stuck_flag) and wall != True):
-                
+
+        if (((i % 8 == 0 or i % 9 == 0 or i % 10 == 0) and stuck_flag) and wall != True):
             for berry in berry_list:
                 if view_info[berry] or view_info["possible berries"]:
                     print("berries")
@@ -815,7 +815,7 @@ def main():
             print("stuck",stuck_flag, berry_stuck_tries)
             if (stuck_flag or berry_stuck_tries > 2):
                 berry_stuck_tries = 0
-                if flag:
+                if flag and stuck_flag:
                     # speed += 2
                     grip_berries()
                     go_back(fr, fl, br, bl, 14)
