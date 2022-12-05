@@ -768,15 +768,15 @@ def main():
             if( not noZombie and maxZombie<110):
                 print("avoid", avoid)
                 if(front ==True and left == True and right == True):
-                    go_straight(fr, fl, br, bl)
+                    go_straight(fr, fl, br, bl,14)
                 elif(avoid == "center"):
-                    turn_right(fr, fl, br, bl)
+                    turn_right(fr, fl, br, bl,14)
                 elif (avoid == "right"):
-                    turn_left(fr, fl, br, bl)
+                    turn_left(fr, fl, br, bl,14)
                 elif(avoid == "straight"):
-                    go_straight(fr, fl, br, bl)
+                    go_straight(fr, fl, br, bl,14)
                 else:
-                    turn_right(fr, fl, br, bl)
+                    turn_right(fr, fl, br, bl,14)
             if(robot_info[1]<25 or noZombie or(robot_info[1]<50 and maxZombie>110)):
                 # if(maxBerry>maxZombie):
                 #     print("chase berry first")
