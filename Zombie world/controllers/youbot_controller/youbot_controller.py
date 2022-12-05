@@ -25,12 +25,17 @@ def robot_reset(fr, fl, br, bl):
     fl.setVelocity(0)
     br.setVelocity(0)
     bl.setVelocity(0)
+
 def turn_left(fr, fl, br, bl,  speed =  MAX_SPEED):
     print("turning left")
     fr.setVelocity(speed)
     fl.setVelocity(-speed)
     br.setVelocity(speed)
     bl.setVelocity(-speed)
+    # fr.setPosition(speed)
+    # fl.setPosition(-speed)
+    # br.setPosition(speed)
+    # bl.setPosition(-speed)
 
 
 def turn_right(fr, fl, br, bl, speed =  MAX_SPEED):
@@ -412,8 +417,7 @@ def main():
             if image:
                 data = np.array(image, dtype = np.uint8)
                 object_data = object_info(data, camera3.getHeight(), camera3.getWidth())
-                view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight(), )
-                print("view info", view_info)
+                view_info = zombie_berry_info(object_data, image, camera3.getWidth(), camera3.getHeight() )
 
 
 
@@ -422,7 +426,7 @@ def main():
             if imageR:
                 data = np.array(imageR, dtype = np.uint8)
                 object_data_right = object_info(data, camera6.getHeight(), camera6.getWidth())
-                view_info_right = zombie_berry_info(object_data_right, imageR, camera6.getWidth(), camera6.getHeight(), )
+                view_info_right = zombie_berry_info(object_data_right, imageR, camera6.getWidth(), camera6.getHeight())
                 print("view info R", view_info_right)
 
         if i % 3 == 0:
@@ -431,7 +435,7 @@ def main():
             if imageL:
                data = np.array(imageL, dtype = np.uint8)
                object_data_left = object_info(data, camera7.getHeight(), camera7.getWidth())
-               view_info_left = zombie_berry_info(object_data_left, imageL, camera7.getWidth(), camera7.getHeight(), )
+               view_info_left = zombie_berry_info(object_data_left, imageL, camera7.getWidth(), camera7.getHeight())
                print("view info L", view_info_left)
 
         if i % 3 == 0:
@@ -439,7 +443,7 @@ def main():
             if imageB:
                 data = np.array(imageB, dtype = np.uint8)
                 object_data_back = object_info(data, camera5.getHeight(), camera5.getWidth())
-                view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight(), )
+                view_info_back = zombie_berry_info(object_data_back, imageB, camera5.getWidth(), camera5.getHeight())
                 print("view info B", view_info_back)
 
         if (robot_info[1]>lastEnergy):
@@ -556,6 +560,23 @@ def main():
                     turn_left(fr, fl, br, bl)
             lastEnergy = robot_info[1]
             print(bestBerry)
+        # -----------------------stuck-------------------------------
+        now_gps = gps.getValues()
+        stuck_time, stuck_flag = is_stuck(now_gps,last_gps,stuck_time)
+        print(stuck_time, stuck_flag)
+        if (stuck_flag):
+            for berry in berry_list:
+                if view_info[berry] or view_info["possible berries"]:
+                    go_straight(fr, fl, br, bl)
+                    stuck_flag = False
+
+            if (stuck_flag):
+                turn_right(fr, fl, br, bl)
+        last_gps = gps.getValues()
+
+
+        # -----------------------stuck-------------------------------
+
         #possible pseudocode for moving forward, then doing a 90 degree left turn
         #if i <100
             #base_forwards() -> can implement in Python with Webots C code (/Zombie world/libraries/youbot_control) as an example or make your own
